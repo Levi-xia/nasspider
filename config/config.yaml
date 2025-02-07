@@ -1,0 +1,5 @@
+
+downloader:
+  thunder:
+    host: http://nas.levicy.love
+    port: 2345
