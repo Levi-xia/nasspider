@@ -3,8 +3,6 @@ package provider
 import (
 	"nasspider/config"
 	"nasspider/pkg/logger"
-	"nasspider/utils"
-	"net/http"
 	"strconv"
 	"strings"
 
@@ -33,20 +31,4 @@ func (d DoMP4Provider) ParseURLs(URL string, CurrentEp int) ([]string, int, erro
 	// if currentEp > tvTask.TotalEp {
 	// 	return fmt.Errorf("异常:解析集数=%d, 总集数=%d", currentEp, tvTask.TotalEp)
 	// }
-
-}
-
-func getHtml(url string) (string, error) {
-	resp, err := utils.HttpDo(
-		url,
-		string(http.MethodGet),
-		nil,
-		utils.WithHeaders(map[string]string{
-			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3776.0 Safari/537.36",
-		}),
-	)
-	if err != nil {
-		return "", err
-	}
-	return string(resp), nil
 }
