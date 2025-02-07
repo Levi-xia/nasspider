@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"nasspider/config"
+	"nasspider/pkg/constants"
 	"nasspider/utils"
 	"net/http"
 	"os"
@@ -26,26 +27,26 @@ type ThunderDownloader struct {
 }
 
 type fileInfo struct {
-	list list `json:"list"`
+	List list `json:"list"`
 }
 
 type list struct {
-	resources []resource `json:"resources"`
+	Resources []resource `json:"resources"`
 }
 
 type resource struct {
-	name      string `json:"name"`
-	fileSize  int    `json:"file_size"`
-	fileCount int    `json:"file_count"`
-	dir       dir    `json:"dir"`
+	Name      string `json:"name"`
+	FileSize  int    `json:"file_size"`
+	FileCount int    `json:"file_count"`
+	Dir       dir    `json:"dir"`
 }
 
 type dir struct {
-	resources []dirResource `json:"resources"`
+	Resources []dirResource `json:"resources"`
 }
 
 type dirResource struct {
-	fileIndex int `json:"file_index"`
+	FileIndex int `json:"file_index"`
 }
 
 func NewThunderDownloader() *ThunderDownloader {
@@ -68,7 +69,7 @@ func (t *ThunderDownloader) SendTask(task Task) error {
 	if deviceID, err = t.getDeviceID(); err != nil {
 		return err
 	}
-	if task.Type == Torrent {
+	if task.Type == constants.Torrent {
 		if task.URL, err = t.convertTorrentToMagnet(task.URL); err != nil {
 			return err
 		}
@@ -76,22 +77,21 @@ func (t *ThunderDownloader) SendTask(task Task) error {
 	if fileInfo, err = t.ListFiles(token, task.URL); err != nil {
 		return err
 	}
-	if len(fileInfo.list.resources) == 0 {
+	if len(fileInfo.List.Resources) == 0 {
 		return errors.New("fileInfo is empty")
 	}
-
 	return t.doTask(token, deviceID, fileInfo, task.URL, task.Path)
 }
 
 // doTask 执行任务
 func (t *ThunderDownloader) doTask(token, deviceID string, fileInfo fileInfo, url string, path string) error {
-	resource := fileInfo.list.resources[0]
-	fileSize := int(resource.fileSize)
-	fileCount := int(resource.fileCount)
+	resource := fileInfo.List.Resources[0]
+	fileSize := int(resource.FileSize)
+	fileCount := int(resource.FileCount)
 	reqPayload := map[string]interface{}{
 		"type":      "user#download-url",
-		"name":      resource.name,
-		"file_name": resource.name,
+		"name":      resource.Name,
+		"file_name": resource.Name,
 		"file_size": strconv.Itoa(fileSize),
 		"space":     deviceID,
 		"params": map[string]interface{}{
@@ -116,7 +116,7 @@ func (t *ThunderDownloader) doTask(token, deviceID string, fileInfo fileInfo, ur
 		}), utils.WithTimeout(time.Second*30)); err != nil {
 		return err
 	}
-	log.Printf("doTask resp:%v", resp)
+	log.Printf("doTask resp:%v", string(resp))
 	return nil
 }
 
@@ -158,8 +158,8 @@ func (t *ThunderDownloader) getPanToken() (version string, err error) {
 	var resp []byte
 	// 发起HTTP请求
 	if resp, err = utils.HttpDo(
-		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi", t.thunderConfig.Host, t.thunderConfig.Port),
-		string(http.MethodPost), nil); err != nil {
+		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/", t.thunderConfig.Host, t.thunderConfig.Port),
+		string(http.MethodGet), nil); err != nil {
 		return
 	}
 	re := regexp.MustCompile(`function uiauth\(value\){ return "(.*)" }`)
@@ -249,15 +249,15 @@ func (t *ThunderDownloader) convertTorrentToMagnet(path string) (string, error) 
 
 // getFileIndex 检查文件索引
 func (t *ThunderDownloader) getFileIndex(fileInfo fileInfo) string {
-	if fileInfo.list.resources[0].fileCount == 1 {
+	if fileInfo.List.Resources[0].FileCount == 1 {
 		return "--1,"
 	}
 	maxSubFileIdx := 0
-	dirResources := fileInfo.list.resources[0].dir.resources
+	dirResources := fileInfo.List.Resources[0].Dir.Resources
 	if len(dirResources) > 0 {
 		for _, resource := range dirResources {
-			if resource.fileIndex > maxSubFileIdx {
-				maxSubFileIdx = resource.fileIndex
+			if resource.FileIndex > maxSubFileIdx {
+				maxSubFileIdx = resource.FileIndex
 			}
 		}
 	}
