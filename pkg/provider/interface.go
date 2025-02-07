@@ -14,7 +14,6 @@ var ProviderMap = map[constants.ProviderName]Provider{
 	constants.DownloaderDoMP4: &DoMP4Provider{},
 }
 
-
 func getHtml(url string) (string, error) {
 	resp, err := utils.HttpDo(
 		url,

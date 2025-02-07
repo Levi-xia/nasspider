@@ -6,7 +6,7 @@ import (
 	"nasspider/pkg/downloader"
 	"nasspider/pkg/logger"
 	"nasspider/pkg/provider"
-	// "time"
+	"time"
 )
 
 func DoTask(p provider.Provider, d downloader.Downloader, tvTask bo.TVTask) error {
@@ -31,20 +31,21 @@ func DoTask(p provider.Provider, d downloader.Downloader, tvTask bo.TVTask) erro
 	}
 	logger.Logger.Infof("URLs:%v\n", URLs)
 	logger.Logger.Infof("currentEp:%d\n", currentEp)
-	// for _, URL := range URLs {
-	// 	// 发送下载任务
-	// 	if err = downloader.CommitDownloadTask(d, downloader.Task{
-	// 		URL:  URL,
-	// 		Type: constants.DownloaderType(tvTask.Type),
-	// 		Path: tvTask.DownloadPath,
-	// 	}); err != nil {
-	// 		return err
-	// 	}
-	// 	time.Sleep(time.Second * 1)
-	// }
+	
+	for _, URL := range URLs {
+		// 发送下载任务
+		if err = downloader.CommitDownloadTask(d, downloader.Task{
+			URL:  URL,
+			Type: constants.DownloaderType(tvTask.Type),
+			Path: tvTask.DownloadPath,
+		}); err != nil {
+			return err
+		}
+		time.Sleep(time.Second * 1)
+	}
 
-	// // 更新当前集数+追更状态
-	// tvTask.CurrentEp = currentEp // Todo
+	// 更新当前集数+追更状态
+	tvTask.CurrentEp = currentEp // Todo
 
 	return nil
 }

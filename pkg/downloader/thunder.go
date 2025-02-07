@@ -23,7 +23,6 @@ type ThunderDownloader struct {
 	deviceID      string
 	tokenStr      string
 	tokenTime     int64
-	thunderConfig config.Thunder
 }
 
 type fileInfo struct {
@@ -50,9 +49,7 @@ type dirResource struct {
 }
 
 func NewThunderDownloader() *ThunderDownloader {
-	return &ThunderDownloader{
-		thunderConfig: config.Conf.Downloader.Thunder,
-	}
+	return &ThunderDownloader{}
 }
 
 // SendTask 发送任务
@@ -108,7 +105,7 @@ func (t *ThunderDownloader) doTask(token, deviceID string, fileInfo fileInfo, ur
 		err  error
 	)
 	if resp, err = utils.HttpDo(
-		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/task?pan_auth=%s&device_space=", t.thunderConfig.Host, t.thunderConfig.Port, token),
+		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/task?pan_auth=%s&device_space=", config.Conf.Downloader.Thunder.Host, config.Conf.Downloader.Thunder.Port, token),
 		http.MethodPost,
 		reqPayload,
 		utils.WithHeaders(map[string]string{
@@ -127,7 +124,7 @@ func (t *ThunderDownloader) ListFiles(token, url string) (fileInfo, error) {
 		result fileInfo
 	)
 	if resp, err = utils.HttpDo(
-		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/resource/list?pan_auth=%s&device_space=", t.thunderConfig.Host, t.thunderConfig.Port, token),
+		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/resource/list?pan_auth=%s&device_space=", config.Conf.Downloader.Thunder.Host, config.Conf.Downloader.Thunder.Port, token),
 		http.MethodPost,
 		map[string]interface{}{
 			"urls": url,
@@ -158,7 +155,7 @@ func (t *ThunderDownloader) getPanToken() (version string, err error) {
 	var resp []byte
 	// 发起HTTP请求
 	if resp, err = utils.HttpDo(
-		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/", t.thunderConfig.Host, t.thunderConfig.Port),
+		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/", config.Conf.Downloader.Thunder.Host, config.Conf.Downloader.Thunder.Port),
 		string(http.MethodGet), nil); err != nil {
 		return
 	}
@@ -185,7 +182,7 @@ func (t *ThunderDownloader) getDeviceID() (deviceID string, err error) {
 		return
 	}
 	if resp, err = utils.HttpDo(
-		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/device/info/watch", t.thunderConfig.Host, t.thunderConfig.Port),
+		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/device/info/watch", config.Conf.Downloader.Thunder.Host, config.Conf.Downloader.Thunder.Port),
 		string(http.MethodPost), nil,
 		utils.WithHeaders(map[string]string{
 			"pan_auth": token,
@@ -205,9 +202,8 @@ func (t *ThunderDownloader) getServerVersion() (string, error) {
 		resp []byte
 		err  error
 	)
-
 	if resp, err = utils.HttpDo(
-		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/launcher/status", t.thunderConfig.Host, t.thunderConfig.Port),
+		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/launcher/status", config.Conf.Downloader.Thunder.Host, config.Conf.Downloader.Thunder.Port),
 		string(http.MethodGet), nil); err != nil {
 		return "", err
 	}

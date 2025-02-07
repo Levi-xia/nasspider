@@ -1,14 +1,7 @@
-
 downloader:
   thunder:
-    host: http://nas.levicy.love
-    port: 2345
-
-provider:
-  domp4:
-    xpath: ""
-    currentEpXpath: ""
-    
+    host: "https://thunder.levicy.love"
+    port: 443 
 logger:
   debugFileName: "logs/debug.log"
   infoFileName: "logs/info.log"
