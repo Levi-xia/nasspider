@@ -1,9 +1,9 @@
 package config
 
 import (
-	"log"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	"log"
 )
 
 var Conf = &configuration{}
@@ -14,15 +14,36 @@ type Config struct {
 
 type configuration struct {
 	Downloader Downloader `mapstructure:"downloader" json:"downloader" yaml:"downloader"`
+	Provider   Provider   `mapstructure:"provider" json:"provider" yaml:"provider"`
+	Logger        LoggerConfig        `mapstructure:"logger" json:"logger" yaml:"logger"`
 }
 
 type Downloader struct {
 	Thunder Thunder `mapstructure:"thunder" json:"thunder" yaml:"thunder"`
 }
 
+type Provider struct {
+	DoMP4 DoMP4 `mapstructure:"domp4" json:"domp4" yaml:"domp4"`
+}
+
 type Thunder struct {
 	Host string `mapstructure:"host" json:"host" yaml:"host"`
 	Port int    `mapstructure:"port" json:"port" yaml:"port"`
+}
+
+type DoMP4 struct {
+	Xpath          string `mapstructure:"xpath" json:"xpath" yaml:"xpath"`
+	CurrentEpXpath string `mapstructure:"current_ep_xpath" json:"current_ep_xpath" yaml:"current_ep_xpath"`
+}
+
+type LoggerConfig struct {
+	DebugFileName string `mapstructure:"debugFileName" json:"debugFileName" yaml:"debugFileName"`
+	InfoFileName  string `mapstructure:"infoFileName" json:"infoFileName" yaml:"infoFileName"`
+	WarnFileName  string `mapstructure:"warnFileName" json:"warnFileName" yaml:"warnFileName"`
+	ErrorFileName string `mapstructure:"errorFileName" json:"errorFileName" yaml:"errorFileName"`
+	MaxSize       int    `mapstructure:"maxSize" json:"maxSize" yaml:"maxSize"`
+	MaxAge        int    `mapstructure:"maxAge" json:"maxAge" yaml:"maxAge"`
+	MaxBackups    int    `mapstructure:"maxBackups" json:"maxBackups" yaml:"maxBackups"`
 }
 
 func InitConfig() *Config {

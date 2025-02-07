@@ -3,3 +3,17 @@ downloader:
   thunder:
     host: http://nas.levicy.love
     port: 2345
+
+provider:
+  domp4:
+    xpath: ""
+    currentEpXpath: ""
+    
+logger:
+  debugFileName: "logs/debug.log"
+  infoFileName: "logs/info.log"
+  warnFileName: "logs/warn.log"
+  errorFileName: "logs/error.log"
+  maxSize: 500
+  maxAge: 28
+  maxBackups: 3

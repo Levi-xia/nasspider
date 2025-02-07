@@ -1,8 +1,8 @@
 package downloader
 
 import (
-	"log"
 	"nasspider/pkg/constants"
+	"nasspider/pkg/logger"
 )
 
 type Task struct {
@@ -23,7 +23,7 @@ func CommitDownloadTask(d Downloader, task Task) error {
 	var err error
 	defer func() {
 		if err != nil {
-			log.Println(err)
+			logger.Logger.Warn(err)
 		}
 	}()
 	if err = d.SendTask(task); err != nil {

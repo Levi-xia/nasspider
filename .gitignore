@@ -1,0 +1,16 @@
+## IDE生成
+.idea/
+.vscode/
+*.iml
+## 编译
+tmp/
+*.sum
+*.mod
+*debug*
+## 日志
+logs/
+## 环境
+.deploy/
+
+.DS_Store
+.vscode

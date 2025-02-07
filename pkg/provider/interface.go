@@ -3,7 +3,7 @@ package provider
 import "nasspider/pkg/constants"
 
 type Provider interface {
-	ParseURLs(URL string, CurrentEp int, xPath string) ([]string, error)
+	ParseURLs(URL string, CurrentEp int) ([]string, int, error)
 }
 
 var ProviderMap = map[constants.ProviderName]Provider{

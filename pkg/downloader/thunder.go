@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"nasspider/config"
 	"nasspider/pkg/constants"
+	"nasspider/pkg/logger"
 	"nasspider/utils"
 	"net/http"
 	"os"
@@ -116,7 +116,7 @@ func (t *ThunderDownloader) doTask(token, deviceID string, fileInfo fileInfo, ur
 		}), utils.WithTimeout(time.Second*30)); err != nil {
 		return err
 	}
-	log.Printf("doTask resp:%v", string(resp))
+	logger.Logger.Infof("doTask resp:%v", string(resp))
 	return nil
 }
 

@@ -8,10 +8,11 @@ type TVTask struct {
 	CurrentEp    int    `json:"current_ep"`
 	Status       int `json:"status"`
 	DownloadPath string `json:"download_path"`
-	Xpath        string `json:"xpath"`
 	Type         string `json:"type"`
 	Provider     string `json:"provider"`
 	Downloader   string `json:"downloader"`
+	CreatedAt    string `json:"created_at"`
+	UpdatedAt    string `json:"updated_at"`
 }
 
 type TVTaskRecord struct {
