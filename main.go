@@ -17,6 +17,8 @@ func main() {
 	config.InitConfig()
 	// 初始化日志
 	logger.InitLog()
+	// 初始化服务
+	serctx.InitServerContext()
 
 	var err error
 	tvTasks := []bo.TVTask{

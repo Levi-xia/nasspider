@@ -1,6 +1,7 @@
 CREATE TABLE `tv_task` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `url` varchar(1024) NOT NULL DEFAULT '' COMMENT '链接',
+  `name` varchar(1024) NOT NULL DEFAULT '' COMMENT '名称',
   `total_ep` int(11) NOT NULL DEFAULT 0 COMMENT '总集数',
   `current_ep` int(11) NOT NULL DEFAULT 0 COMMENT '当前集数',
   `status` int(11) NOT NULL DEFAULT 0 COMMENT '状态',
