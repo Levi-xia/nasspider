@@ -20,6 +20,8 @@ func main() {
 	logger.InitLog()
 	// 初始化服务
 	serctx.InitServerContext()
+	// 初始化验证器
+	common.InitValidator()
 	// 初始化定时任务
 	cron.InitCron()
 

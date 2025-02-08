@@ -9,7 +9,10 @@ func Index(c *gin.Context) {
 
 // EditTaskRequest 发起修改任务
 func EditTaskRequest(c *gin.Context) {
-
+	req := &dto.GetChargingPostListRequest{}
+	if err := ctx.ShouldBind(req); err != nil {
+		return errors.New(bootstrap.GetErrorMsg(req, err))
+	}
 }
 
 // AddTaskRequest 发起添加任务

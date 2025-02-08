@@ -15,11 +15,24 @@ func DoTask(p provider.Provider, d downloader.Downloader, tvTask bo.TVTask) erro
 		URLs      []string
 		currentEp int
 	)
+	defer func() {
+		if err != nil {
+			service.UpdateStatus(&bo.UpdateStatusRequest{
+				ID:     tvTask.ID,
+				Status: int(constants.Error),
+			})
+		}
+	}()
 	if tvTask.Status != int(constants.Doing) {
 		return nil
 	}
 	if tvTask.TotalEp != 0 && tvTask.CurrentEp >= tvTask.TotalEp {
-		// 更新status为finish Todo
+		if _, err := service.UpdateStatus(&bo.UpdateStatusRequest{
+			ID:     tvTask.ID,
+			Status: int(constants.Finish),
+		}); err != nil {
+			return err
+		}
 		return nil
 	}
 	if URLs, currentEp, err = p.ParseURLs(tvTask.URL, tvTask.CurrentEp); err != nil {
@@ -29,9 +42,6 @@ func DoTask(p provider.Provider, d downloader.Downloader, tvTask bo.TVTask) erro
 		logger.Logger.Info("未获取到更新的URLs, 跳过，等待下次执行")
 		return nil
 	}
-	logger.Logger.Infof("URLs:%v\n", URLs)
-	logger.Logger.Infof("currentEp:%d\n", currentEp)
-	
 	for _, URL := range URLs {
 		// 发送下载任务
 		if err = downloader.CommitDownloadTask(d, downloader.Task{
@@ -43,9 +53,13 @@ func DoTask(p provider.Provider, d downloader.Downloader, tvTask bo.TVTask) erro
 		}
 		time.Sleep(time.Second * 1)
 	}
-
 	// 更新当前集数+追更状态
-	tvTask.CurrentEp = currentEp // Todo
-
+	tvTask.CurrentEp = currentEp
+	if _, err := service.UpdateCurrentEp(&bo.UpdateCurrentEpRequest{
+		ID:        tvTask.ID,
+		CurrentEp: currentEp,
+	}); err != nil {
+		return err
+	}
 	return nil
 }
