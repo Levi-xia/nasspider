@@ -1,7 +1,7 @@
 downloader:
   thunder:
-    host: "https://thunder.levicy.love"
-    port: 443 
+    host: "http://192.168.0.111"
+    port: 2345 
 logger:
   debugFileName: "logs/debug.log"
   infoFileName: "logs/info.log"
