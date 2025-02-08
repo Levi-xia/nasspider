@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	"nasspider/pkg/bo"
 	"nasspider/pkg/constants"
 	"nasspider/pkg/downloader"
@@ -35,7 +36,9 @@ func DoTask(tvTask bo.TVTask) error {
 	p := provider.ProviderMap[constants.ProviderName(tvTask.Provider)]
 	d := downloader.DownloaderMap[constants.DownloaderName(tvTask.Downloader)]
 
-	logger.Logger.Infof("开始执行网页%s解析...", tvTask.URL)
+	if p == nil || d == nil {
+		return fmt.Errorf("provider or downloader not found")
+	}
 
 	if URLs, currentEp, err = p.ParseURLs(tvTask.URL, tvTask.CurrentEp); err != nil {
 		return err

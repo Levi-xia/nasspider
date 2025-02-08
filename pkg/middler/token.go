@@ -14,20 +14,12 @@ func NeedLoginHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tk_str, _ := c.Cookie("AT")
 		if tk_str == "" {
-			c.JSON(http.StatusOK, &common.Result{
-				Code: 201,
-				Msg:  "请先登录",
-				Data: nil,
-			})
+			c.Redirect(http.StatusFound, "/login")
 			c.Abort()
 			return
 		}
 		if token, err := tokenParse(tk_str); err != nil || !token.Valid {
-			c.JSON(http.StatusOK, &common.Result{
-				Code: 201,
-				Msg:  "请先登录",
-				Data: nil,
-			})
+			c.Redirect(http.StatusFound, "/login")
 			c.Abort()
 			return
 		}

@@ -51,6 +51,19 @@ func GetTaskList(req *bo.GetTaskListRequest) (*bo.GetTaskListResponse, error) {
 	}, nil
 }
 
+func CountTaskList(req *bo.CountTaskListRequest) (*bo.CountTaskListResponse, error) {
+	var count int64
+	db := serctx.SerCtx.Db
+	if len(req.StatusList) > 0 {
+		db = db.Where("status in?", req.StatusList)
+	}
+	if err := db.Model(&TvTask{}).Count(&count).Error; err != nil {
+		return nil, err
+	}
+	return &bo.CountTaskListResponse{
+		Count: count,
+	}, nil
+}
 func GetTask(req *bo.GetTaskRequest) (*bo.GetTaskResponse, error) {
 	var task TvTask
 	if err := serctx.SerCtx.Db.Where("id = ?", req.ID).First(&task).Error; err != nil {
@@ -86,19 +99,17 @@ func AddTask(req *bo.AddTaskRequest) (*bo.AddTaskResponse, error) {
 }
 
 func EditTask(req *bo.EditTaskRequest) (*bo.EditTaskResponse, error) {
-	task := TvTask{
-		ID:           common.ID{ID: req.ID},
-		Name:         req.Name,
-		URL:          req.URL,
-		TotalEp:      req.TotalEp,
-		CurrentEp:    req.CurrentEp,
-		Status:       req.Status,
-		DownloadPath: req.DownloadPath,
-		Type:         req.Type,
-		Downloader:   req.Downloader,
-		Provider:     req.Provider,
-	}
-	if err := serctx.SerCtx.Db.Save(&task).Error; err != nil {
+	if err := serctx.SerCtx.Db.Model(&TvTask{}).Where("id = ?", req.ID).Updates(map[string]interface{}{
+		"name":          req.Name,
+		"url":           req.URL,
+		"total_ep":      req.TotalEp,
+		"current_ep":    req.CurrentEp,
+		"status":        req.Status,
+		"download_path": req.DownloadPath,
+		"type":          req.Type,
+		"downloader":    req.Downloader,
+		"provider":      req.Provider,
+	}).Error; err != nil {
 		return nil, err
 	}
 	return &bo.EditTaskResponse{

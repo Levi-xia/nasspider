@@ -6,7 +6,7 @@ type TVTask struct {
 	URL          string `json:"url"`
 	TotalEp      int    `json:"total_ep"`
 	CurrentEp    int    `json:"current_ep"`
-	Status       int `json:"status"`
+	Status       int    `json:"status"`
 	DownloadPath string `json:"download_path"`
 	Type         string `json:"type"`
 	Provider     string `json:"provider"`

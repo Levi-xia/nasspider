@@ -15,6 +15,13 @@ var (
 	Finish TaskStatus = 1
 	Abort  TaskStatus = 2
 	Error  TaskStatus = 3
+
+	TaskStatusMap = map[TaskStatus]string{
+		Doing:  "进行中",
+		Finish: "已完成",
+		Abort:  "已中止",
+		Error:  "已出错",
+	}
 )
 
 var (

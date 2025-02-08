@@ -1,7 +1,338 @@
 {{template "base.html" .}}
 
 {{define "content"}}
+<!-- 添加loading遮罩 -->
+<div id="loading" class="position-fixed top-0 start-0 w-100 h-100 d-none" style="background: rgba(255,255,255,0.8); z-index: 9999;">
+    <div class="d-flex justify-content-center align-items-center h-100">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
 
-index
+<!-- 添加"新增任务"按钮 -->
+<div class="container-fluid px-0 mb-3">
+    <div class="d-flex justify-content-end">
+        <button type="button" class="btn btn-primary" onclick="showTaskModal()">新增任务</button>
+    </div>
+</div>
+
+<!-- 表格部分保持不变 -->
+<div class="table-responsive">
+    <div class="container-fluid px-0">
+        <table class="table table-striped table-hover table-bordered table-sm nowrap" style="width:100%">
+            <thead class="fw-bold">
+                <tr>
+                    <th class="text-nowrap align-middle" scope="col">ID</th>
+                    <th class="text-nowrap align-middle" scope="col">名称</th>
+                    <th class="text-nowrap align-middle" scope="col">URL</th>
+                    <th class="text-nowrap align-middle" scope="col">总集数</th>
+                    <th class="text-nowrap align-middle" scope="col">当前集数</th>
+                    <th class="text-nowrap align-middle" scope="col">状态</th>
+                    <th class="text-nowrap align-middle" scope="col">下载路径</th>
+                    <th class="text-nowrap align-middle" scope="col">类型</th>
+                    <th class="text-nowrap align-middle" scope="col">来源</th>
+                    <th class="text-nowrap align-middle" scope="col">下载器</th>
+                    <th class="text-nowrap align-middle" scope="col">创建时间</th>
+                    <th class="text-nowrap align-middle" scope="col">更新时间</th>
+                    <th class="text-nowrap align-middle" scope="col">操作</th>
+                </tr>
+            </thead>
+            <tbody id="taskList">
+            </tbody>
+        </table>
+        <!-- 添加分页组件 -->
+        <nav aria-label="Page navigation" class="mt-3">
+            <ul class="pagination justify-content-center" id="pagination">
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- 添加任务模态框 -->
+<div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="taskModalLabel">编辑任务</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="taskForm">
+                    <input type="hidden" id="taskId">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">名称</label>
+                        <input type="text" class="form-control" id="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="url" class="form-label">URL</label>
+                        <input type="text" class="form-control" id="url" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="total_ep" class="form-label">总集数</label>
+                        <input type="number" class="form-control" id="total_ep" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="current_ep" class="form-label">当前集数</label>
+                        <input type="number" class="form-control" id="current_ep" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="provider" class="form-label">状态</label>
+                        <input type="text" class="form-control" id="status" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="download_path" class="form-label">下载路径</label>
+                        <input type="text" class="form-control" id="download_path" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="type" class="form-label">类型</label>
+                        <input type="text" class="form-control" id="type" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="provider" class="form-label">来源</label>
+                        <input type="text" class="form-control" id="provider" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="downloader" class="form-label">下载器</label>
+                        <input type="text" class="form-control" id="downloader" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="submitTask">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 将 loadTasks 函数移到全局作用域
+let currentPage = 1;
+const pageSize = 50;
+
+function loadTasks(page) {
+    const loading = document.getElementById('loading');
+    loading.classList.remove('d-none');
+
+    fetch('/api/task/list', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            page: page,
+            page_size: pageSize
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.code === 0) {
+            const taskList = document.getElementById('taskList');
+            let html = '';
+            
+            data.data.list.forEach(task => {
+                html += `
+                    <tr>
+                        <td class="text-nowrap align-middle">${task.id}</td>
+                        <td class="text-nowrap align-middle">${task.name}</td>
+                        <td class="text-nowrap align-middle">${task.url}</td>
+                        <td class="text-nowrap align-middle">${task.total_ep}</td>
+                        <td class="text-nowrap align-middle">${task.current_ep}</td>
+                        <td class="text-nowrap align-middle"><span class="badge bg-primary">${task.status_desc}</span></td>
+                        <td class="text-nowrap align-middle">${task.download_path}</td>
+                        <td class="text-nowrap align-middle">${task.type}</td>
+                        <td class="text-nowrap align-middle">${task.provider}</td>
+                        <td class="text-nowrap align-middle">${task.downloader}</td>
+                        <td class="text-nowrap align-middle">${task.created_at}</td>
+                        <td class="text-nowrap align-middle">${task.updated_at}</td>
+                        <td class="text-nowrap align-middle">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-primary" onclick='showTaskModal(${JSON.stringify(task)})'>编辑</button>
+                                <button type="button" class="btn btn-sm btn-success" onclick='triggerTask(${task.id})'>开始追更</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            taskList.innerHTML = html;
+
+            // 渲染分页
+            const totalPages = Math.ceil(data.data.total / pageSize);
+            const pagination = document.getElementById('pagination');
+            let paginationHtml = '';
+
+            // 上一页按钮
+            paginationHtml += `
+                <li class="page-item ${page === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${page - 1}">上一页</a>
+                </li>
+            `;
+
+            // 页码按钮
+            for (let i = 1; i <= totalPages; i++) {
+                paginationHtml += `
+                    <li class="page-item ${i === page ? 'active' : ''}">
+                        <a class="page-link" href="#" data-page="${i}">${i}</a>
+                    </li>
+                `;
+            }
+
+            // 下一页按钮
+            paginationHtml += `
+                <li class="page-item ${page === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${page + 1}">下一页</a>
+                </li>
+            `;
+
+            pagination.innerHTML = paginationHtml;
+
+            // 添加分页点击事件
+            pagination.querySelectorAll('.page-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const newPage = parseInt(e.target.dataset.page);
+                    if (newPage > 0 && newPage <= totalPages) {
+                        currentPage = newPage;
+                        loadTasks(currentPage);
+                    }
+                });
+            });
+        } else {
+            alert('获取任务列表失败：' + data.msg);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('获取任务列表失败');
+    })
+    .finally(() => {
+        loading.classList.add('d-none');
+    });
+}
+
+// 其他全局变量
+let taskModal;
+let isEdit = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    taskModal = new bootstrap.Modal(document.getElementById('taskModal'));
+    
+    // 初始化表单提交事件
+    document.getElementById('submitTask').addEventListener('click', handleSubmitTask);
+    
+    // 初始加载第一页
+    loadTasks(currentPage);
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    taskModal = new bootstrap.Modal(document.getElementById('taskModal'));
+    
+    // 初始化表单提交事件
+    document.getElementById('submitTask').addEventListener('click', handleSubmitTask);
+    
+    // ... 原有的loadTasks调用保持不变 ...
+});
+function showTaskModal(task = null) {
+    isEdit = !!task;
+    const modalTitle = document.getElementById('taskModalLabel');
+    modalTitle.textContent = isEdit ? '编辑任务' : '新增任务';
+    
+    const form = document.getElementById('taskForm');
+    form.reset();
+    
+    if (task) {
+        document.getElementById('taskId').value = task.id;
+        document.getElementById('name').value = task.name;
+        document.getElementById('url').value = task.url;
+        document.getElementById('total_ep').value = task.total_ep;
+        document.getElementById('current_ep').value = task.current_ep;
+        document.getElementById('status').value = task.status;
+        document.getElementById('download_path').value = task.download_path;
+        document.getElementById('type').value = task.type;
+        document.getElementById('provider').value = task.provider;
+        document.getElementById('downloader').value = task.downloader;
+    }
+    taskModal.show();
+}
+
+function handleSubmitTask() {
+    const formData = {
+        name: document.getElementById('name').value,
+        url: document.getElementById('url').value,
+        total_ep: parseInt(document.getElementById('total_ep').value),
+        current_ep: parseInt(document.getElementById('current_ep').value),
+        status: parseInt(document.getElementById('status').value),
+        download_path: document.getElementById('download_path').value,
+        type: document.getElementById('type').value,
+        provider: document.getElementById('provider').value,
+        downloader: document.getElementById('downloader').value
+    };
+    
+    if (isEdit) {
+        formData.id = parseInt(document.getElementById('taskId').value);
+    }
+    
+    const url = isEdit ? '/api/task/edit' : '/api/task/add';
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.code === 0) {
+            taskModal.hide();
+            loadTasks(currentPage);
+            // 添加成功提示
+            alert(isEdit ? '编辑成功' : '添加成功');
+        } else {
+            // 修改错误提示
+            alert((isEdit ? '编辑' : '添加') + '失败：' + (data.msg || '未知错误'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // 修改错误提示
+        alert((isEdit ? '编辑' : '添加') + '失败：' + error.message);
+    });
+}
+
+// 添加触发任务的函数
+function triggerTask(taskId) {
+    const loading = document.getElementById('loading');
+    loading.classList.remove('d-none');
+
+    fetch('/api/task/trigger', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            id: taskId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.code === 0) {
+            alert('触发成功');
+            loadTasks(currentPage);
+        } else {
+            alert('触发失败：' + (data.msg || '未知错误'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('触发失败：' + error.message);
+    })
+    .finally(() => {
+        loading.classList.add('d-none');
+    });
+}
+</script>
 
 {{end}}

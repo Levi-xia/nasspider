@@ -2,30 +2,33 @@ package router
 
 import (
 	"nasspider/pkg/app"
-	"net/http"
+	"nasspider/pkg/middler"
 
 	"github.com/gin-gonic/gin"
 )
 
 // SetRoutes 注册路由
 func SetRoutes(r *gin.Engine) {
+	// 静态文件
+	r.Static("/static", "static/")
+
 	pageGroup := r.Group("/")
 	{
-		pageGroup.GET("/", func(c *gin.Context) {
+		pageGroup.GET("/", middler.NeedLoginHandler(), func(c *gin.Context) {
 			r.LoadHTMLFiles("templates/layout/base.html", "templates/index/index.html")
-			c.HTML(http.StatusOK, "index.html", nil)
+			app.Index(c)
 		})
 		pageGroup.GET("/login", func(c *gin.Context) {
 			r.LoadHTMLFiles("templates/layout/base.html", "templates/login/login.html")
-			c.HTML(http.StatusOK, "login.html", nil)
+			app.Login(c)
 		})
 	}
-
 	apiGroup := r.Group("/api")
 	{
-		apiGroup.POST("/login", app.Login)
-		apiGroup.POST("/task/add", app.AddTask)
-		apiGroup.POST("/task/edit", app.EditTask)
-		apiGroup.POST("/task/trigger", app.TriggerTask)
+		apiGroup.POST("/login/submit", app.SubmitLogin)
+		apiGroup.POST("/task/list", middler.NeedLoginHandler(), app.GetTaskList)
+		apiGroup.POST("/task/add", middler.NeedLoginHandler(), app.AddTask)
+		apiGroup.POST("/task/edit", middler.NeedLoginHandler(), app.EditTask)
+		apiGroup.POST("/task/trigger", middler.NeedLoginHandler(), app.TriggerTask)
 	}
 }

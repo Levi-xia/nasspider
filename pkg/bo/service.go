@@ -7,7 +7,16 @@ type GetTaskListRequest struct {
 }
 
 type GetTaskListResponse struct {
-	List []TVTask `json:"list"`
+	List  []TVTask `json:"list"`
+	Total int64    `json:"total"`
+}
+
+type CountTaskListRequest struct {
+	StatusList []int `json:"status_list"`
+}
+
+type CountTaskListResponse struct {
+	Count int64 `json:"count"`
 }
 
 type GetTaskRequest struct {
