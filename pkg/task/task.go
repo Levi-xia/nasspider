@@ -53,13 +53,19 @@ func DoTask(p provider.Provider, d downloader.Downloader, tvTask bo.TVTask) erro
 		}
 		time.Sleep(time.Second * 1)
 	}
-	// 更新当前集数+追更状态
-	tvTask.CurrentEp = currentEp
 	if _, err := service.UpdateCurrentEp(&bo.UpdateCurrentEpRequest{
 		ID:        tvTask.ID,
 		CurrentEp: currentEp,
 	}); err != nil {
 		return err
+	}
+	if currentEp == tvTask.TotalEp {
+		if _, err := service.UpdateStatus(&bo.UpdateStatusRequest{
+			ID:     tvTask.ID,
+			Status: constants.Finish,
+		}); err != nil {
+			return err
+		}
 	}
 	return nil
 }
