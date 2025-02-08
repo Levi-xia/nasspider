@@ -19,6 +19,7 @@ type configuration struct {
 	Logger     LoggerConfig `mapstructure:"logger" json:"logger" yaml:"logger"`
 	DB         MySqlConfig  `mapstructure:"mysql" json:"mysql" yaml:"mysql"`
 	Jwt        JwtConfig    `mapstructure:"jwt" json:"jwt" yaml:"jwt"`
+	Passport   Passport     `mapstructure:"passport" json:"passport" yaml:"passport"`
 }
 
 type ServerConfig struct {
@@ -62,6 +63,11 @@ type MySqlConfig struct {
 	LogMode             string `mapstructure:"log_mode" json:"log_mode" yaml:"log_mode"`
 	EnableFileLogWriter bool   `mapstructure:"enable_file_log_writer" json:"enable_file_log_writer" yaml:"enable_file_log_writer"`
 	LogFilename         string `mapstructure:"log_filename" json:"log_filename" yaml:"log_filename"`
+}
+
+type Passport struct {
+	Username string `mapstructure:"username" json:"username" yaml:"username"`
+	Password string `mapstructure:"password" json:"password" yaml:"password"`
 }
 
 func InitConfig() *Config {

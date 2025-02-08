@@ -1,6 +1,9 @@
 server:
   port: 8088
 
+passport:
+  username: "admin"
+  password: "123456"
 
 downloader:
   thunder:

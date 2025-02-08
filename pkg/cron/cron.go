@@ -7,8 +7,8 @@ import (
 )
 
 type crontab struct {
-	spec string
-	cmd  func()
+	spec   string
+	cmd    func()
 	enable bool
 }
 
