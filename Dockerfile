@@ -39,16 +39,16 @@ RUN groupadd -r work && \
     useradd -r -g work -d ${WORK_DIR} -s /bin/bash -m work 
 
 # 复制二进制构件  
-COPY ./bin/blog-go ${BIN_DIR}
+COPY ./bin/nas-spider ${BIN_DIR}
 
 # 复制配置文件
-COPY ./config/app-prod.yaml ${CONF_DIR}
+COPY ./config/config.yaml ${CONF_DIR}
 
 # 复制模版文件
 COPY ./templates ${TEMPLATES_DIR}
 
 #  复制静态文件
- COPY ./static ${STATIC_DIR}
+COPY ./static ${STATIC_DIR}
 
 # 创建环境文件
 RUN mkdir -p ${BIN_DIR}/.deploy \
@@ -56,7 +56,7 @@ RUN mkdir -p ${BIN_DIR}/.deploy \
 
 # 配置 Supervisor 来管理 Go 二进制程序
 RUN echo "[unix_http_server]\nfile=${SUPERVISOR_RUN_DIR}/supervisor.sock\nchmod=0770\n\n[supervisord]\nnodaemon=true\nlogfile=${SUPERVISOR_LOG}/supervisord.log\npidfile=${SUPERVISOR_RUN_DIR}/supervisord.pid\nchildlogdir=${SUPERVISOR_RUN_CHILD_LOG_DIR}\n\n[rpcinterface:supervisor]\nsupervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface\n\n[supervisorctl]\nserverurl=unix://${SUPERVISOR_RUN_DIR}/supervisor.sock\n\n[include]\nfiles = ${SUPERVISOR_CONF_D_DIR}/*.conf" > ${SUPERVISOR_CONF_DIR}/supervisord.conf && \  
-    echo "[program:blog-go]\ncommand=${BIN_DIR}/blog-go\nuser=work\nautostart=true\nautorestart=true\nstderr_logfile=${SUPERVISOR_LOG}/blog-go.err.log\nstdout_logfile=${SUPERVISOR_LOG}/blog-go.out.log" >> ${SUPERVISOR_CONF_D_DIR}/blog-go.conf  
+    echo "[program:nas-spider]\ncommand=${BIN_DIR}/nas-spider\nuser=work\nautostart=true\nautorestart=true\nstderr_logfile=${SUPERVISOR_LOG}/nas-spider.err.log\nstdout_logfile=${SUPERVISOR_LOG}/nas-spider.out.log" >> ${SUPERVISOR_CONF_D_DIR}/nas-spider.conf  
 
 # 设置文件权限
 RUN chown -R work:work ${WORK_DIR}
