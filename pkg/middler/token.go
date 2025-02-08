@@ -1,8 +1,8 @@
 package middler
 
 import (
-	"charging/config"
-	"charging/internal/common"
+	"nasspider/config"
+	"nasspider/pkg/common"
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"

@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/robfig/cron/v3"
-	"go.uber.org/zap"
 )
 
 type crontab struct {

@@ -1,7 +1,7 @@
 package common
 
 import (
-	"charging/config"
+	"nasspider/config"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"

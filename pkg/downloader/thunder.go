@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"nasspider/config"
 	"nasspider/pkg/constants"
-	"nasspider/pkg/logger"
 	"nasspider/utils"
 	"net/http"
 	"os"
@@ -20,9 +19,9 @@ import (
 )
 
 type ThunderDownloader struct {
-	deviceID      string
-	tokenStr      string
-	tokenTime     int64
+	deviceID  string
+	tokenStr  string
+	tokenTime int64
 }
 
 type fileInfo struct {
@@ -101,10 +100,9 @@ func (t *ThunderDownloader) doTask(token, deviceID string, fileInfo fileInfo, ur
 		},
 	}
 	var (
-		resp []byte
-		err  error
+		err error
 	)
-	if resp, err = utils.HttpDo(
+	if _, err = utils.HttpDo(
 		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/task?pan_auth=%s&device_space=", config.Conf.Downloader.Thunder.Host, config.Conf.Downloader.Thunder.Port, token),
 		http.MethodPost,
 		reqPayload,
@@ -113,7 +111,6 @@ func (t *ThunderDownloader) doTask(token, deviceID string, fileInfo fileInfo, ur
 		}), utils.WithTimeout(time.Second*30)); err != nil {
 		return err
 	}
-	logger.Logger.Infof("doTask resp:%v", string(resp))
 	return nil
 }
 

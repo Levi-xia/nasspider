@@ -14,14 +14,20 @@ type Config struct {
 }
 
 type configuration struct {
-	Server        ServerConfig        `mapstructure:"server" json:"server" yaml:"server"`
+	Server     ServerConfig `mapstructure:"server" json:"server" yaml:"server"`
 	Downloader Downloader   `mapstructure:"downloader" json:"downloader" yaml:"downloader"`
 	Logger     LoggerConfig `mapstructure:"logger" json:"logger" yaml:"logger"`
-	DB            MySqlConfig         `mapstructure:"mysql" json:"mysql" yaml:"mysql"`
+	DB         MySqlConfig  `mapstructure:"mysql" json:"mysql" yaml:"mysql"`
+	Jwt        JwtConfig    `mapstructure:"jwt" json:"jwt" yaml:"jwt"`
 }
 
 type ServerConfig struct {
 	Port int `mapstructure:"port" json:"port" yaml:"port"`
+}
+
+type JwtConfig struct {
+	Secret string `mapstructure:"secret" json:"secret" yaml:"secret"`
+	JwtTtl int64  `mapstructure:"jwt_ttl" json:"jwt_ttl" yaml:"jwt_ttl"` // token 有效期（秒）
 }
 
 type Downloader struct {

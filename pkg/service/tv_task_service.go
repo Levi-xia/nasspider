@@ -3,11 +3,12 @@ package service
 import (
 	"nasspider/pkg/bo"
 	"nasspider/pkg/common"
+	"nasspider/pkg/serctx"
 	"nasspider/utils"
 )
 
 type TvTask struct {
-	ID           common.ID
+	common.ID    `gorm:"primary_key;auto_increment:10000000;column:id;comment:id"`
 	Name         string `gorm:"column:name;type:varchar(1024);not null;default:'';comment:名称"`
 	URL          string `gorm:"column:url;type:varchar(1024);not null;default:'';comment:链接"`
 	TotalEp      int    `gorm:"column:total_ep;type:int(11);not null;default:0;comment:总集数"`
@@ -30,7 +31,12 @@ func GetTaskList(req *bo.GetTaskListRequest) (*bo.GetTaskListResponse, error) {
 		tasks   []TvTask
 		tvTasks []bo.TVTask
 	)
-	if err := serctx.SerCtx.Db.Order("id desc").Limit(req.PageSize).Offset((req.Page - 1) * req.PageSize).Find(&tasks).Error; err != nil {
+	db := serctx.SerCtx.Db
+
+	if len(req.StatusList) > 0 {
+		db = db.Where("status in ?", req.StatusList)
+	}
+	if err := db.Order("id desc").Limit(req.PageSize).Offset((req.Page - 1) * req.PageSize).Find(&tasks).Error; err != nil {
 		return nil, err
 	}
 	for _, task := range tasks {
@@ -43,6 +49,20 @@ func GetTaskList(req *bo.GetTaskListRequest) (*bo.GetTaskListResponse, error) {
 	return &bo.GetTaskListResponse{
 		List: tvTasks,
 	}, nil
+}
+
+func GetTask(req *bo.GetTaskRequest) (*bo.GetTaskResponse, error) {
+	var task TvTask
+	if err := serctx.SerCtx.Db.Where("id = ?", req.ID).First(&task).Error; err != nil {
+		return nil, err
+	}
+	if tvTask, err := mo2Bo(task); err != nil {
+		return nil, err
+	} else {
+		return &bo.GetTaskResponse{
+			TVTask: tvTask,
+		}, nil
+	}
 }
 
 func AddTask(req *bo.AddTaskRequest) (*bo.AddTaskResponse, error) {
@@ -61,13 +81,13 @@ func AddTask(req *bo.AddTaskRequest) (*bo.AddTaskResponse, error) {
 		return nil, err
 	}
 	return &bo.AddTaskResponse{
-		ID: task.ID,
+		ID: task.ID.ID,
 	}, nil
 }
 
 func EditTask(req *bo.EditTaskRequest) (*bo.EditTaskResponse, error) {
 	task := TvTask{
-		ID:           req.ID,
+		ID:           common.ID{ID: req.ID},
 		Name:         req.Name,
 		URL:          req.URL,
 		TotalEp:      req.TotalEp,
@@ -78,29 +98,29 @@ func EditTask(req *bo.EditTaskRequest) (*bo.EditTaskResponse, error) {
 		Downloader:   req.Downloader,
 		Provider:     req.Provider,
 	}
-	if err := serctx.SerCtx.Db.Save(&task).Error; err!= nil {
+	if err := serctx.SerCtx.Db.Save(&task).Error; err != nil {
 		return nil, err
 	}
 	return &bo.EditTaskResponse{
-		ID: req.ID
+		ID: req.ID,
 	}, nil
 }
 
 func UpdateCurrentEp(req *bo.UpdateCurrentEpRequest) (*bo.UpdateCurrentEpResponse, error) {
-	if err := db.Model(&User{}).Where("id = ?", req.ID).Update("current_ep", req.CurrentEp).Error; err != nil {
+	if err := serctx.SerCtx.Db.Model(&TvTask{}).Where("id = ?", req.ID).Update("current_ep", req.CurrentEp).Error; err != nil {
 		return nil, err
 	}
 	return &bo.UpdateCurrentEpResponse{
-		ID: req.ID
+		ID: req.ID,
 	}, nil
 }
 
-func UpdateStatus(*bo.UpdateStatusRequest) (*bo.UpdateStatusResponse, error) {
-	if err := db.Model(&User{}).Where("id =?", req.ID).Update("status", req.Status).Error; err!= nil {
+func UpdateStatus(req *bo.UpdateStatusRequest) (*bo.UpdateStatusResponse, error) {
+	if err := serctx.SerCtx.Db.Model(&TvTask{}).Where("id =?", req.ID).Update("status", req.Status).Error; err != nil {
 		return nil, err
 	}
 	return &bo.UpdateStatusResponse{
-		ID: req.ID
+		ID: req.ID,
 	}, nil
 }
 

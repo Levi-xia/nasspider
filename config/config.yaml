@@ -1,11 +1,15 @@
 server:
-  port: 8082
+  port: 8088
 
 
 downloader:
   thunder:
     host: "http://192.168.0.111"
     port: 2345 
+
+jwt:
+  secret: 4Bde3BGEbYqtqyEUzW4ry8jKFcaPH17fRmTmqE7MDr05Lwj95uruRKrrkb44TJ3s
+  jwt_ttl: 432000
 
 logger:
   debugFileName: "logs/debug.log"
@@ -22,7 +26,7 @@ mysql:
   port: 3306 # 端口号
   database: nas-spider # 数据库名称
   username: root # 用户名
-  password: Mysqlxwy9264 # 密码
+  password: 123456 # 密码
   charset: utf8mb4 # 编码格式
   max_idle_conns: 10 # 空闲连接池中连接的最大数量
   max_open_conns: 100 # 打开数据库连接的最大数量

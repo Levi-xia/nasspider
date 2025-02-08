@@ -5,5 +5,5 @@ import (
 )
 
 func InitMiddleware(r *gin.Engine) {
-	r.Use(NeedLoginHandler())
+	// r.Use()
 }

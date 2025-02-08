@@ -1,12 +1,21 @@
 package bo
 
 type GetTaskListRequest struct {
-	Page     int `json:"page"`
-	PageSize int `json:"page_size"`
+	Page       int   `json:"page"`
+	PageSize   int   `json:"page_size"`
+	StatusList []int `json:"status_list"`
 }
 
 type GetTaskListResponse struct {
-	List []bo.TvTask `json:"list"`
+	List []TVTask `json:"list"`
+}
+
+type GetTaskRequest struct {
+	ID int `json:"id"`
+}
+
+type GetTaskResponse struct {
+	TVTask TVTask `json:"tv_task"`
 }
 
 type AddTaskRequest struct {
@@ -22,40 +31,40 @@ type AddTaskRequest struct {
 }
 
 type AddTaskResponse struct {
-	ID common.ID `json:"id"`
+	ID int `json:"id"`
 }
 
 type EditTaskRequest struct {
-	ID           common.ID `json:"id"`
-	URL          string    `json:"url"`
-	Name         string    `json:"name"`
-	TotalEp      int       `json:"total_ep"`
-	CurrentEp    int       `json:"current_ep"`
-	Status       int       `json:"status"`
-	Provider     string    `json:"provider"`
-	Downloader   string    `json:"downloader"`
-	DownloadPath string    `json:"download_path"`
-	Type         string    `json:"type"`
+	ID           int    `json:"id"`
+	URL          string `json:"url"`
+	Name         string `json:"name"`
+	TotalEp      int    `json:"total_ep"`
+	CurrentEp    int    `json:"current_ep"`
+	Status       int    `json:"status"`
+	Provider     string `json:"provider"`
+	Downloader   string `json:"downloader"`
+	DownloadPath string `json:"download_path"`
+	Type         string `json:"type"`
 }
 
 type EditTaskResponse struct {
-	ID common.ID `json:"id"`
+	ID int `json:"id"`
 }
 
 type UpdateCurrentEpRequest struct {
-	ID        common.ID `json:"id"`
-	CurrentEp int       `json:"current_ep"`
+	ID        int `json:"id"`
+	CurrentEp int `json:"current_ep"`
 }
 
 type UpdateCurrentEpResponse struct {
-	ID common.ID `json:"id"`
+	ID int `json:"id"`
 }
 
 type UpdateStatusRequest struct {
-	ID     common.ID `json:"id"`
-	Status int       `json:"status"`
+	ID     int `json:"id"`
+	Status int `json:"status"`
 }
 
 type UpdateStatusResponse struct {
-	ID common.ID `json:"id"`
+	ID int `json:"id"`
 }

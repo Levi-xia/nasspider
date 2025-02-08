@@ -1,8 +1,8 @@
 package serctx
 
 import (
-	"blog-go/config"
 	"log"
+	"nasspider/config"
 	"strconv"
 
 	"gorm.io/driver/mysql"
