@@ -14,6 +14,7 @@ var (
 	Doing  TaskStatus = 0
 	Finish TaskStatus = 1
 	Abort  TaskStatus = 2
+	Error  TaskStatus = 3
 )
 
 var (

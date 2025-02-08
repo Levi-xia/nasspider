@@ -9,6 +9,7 @@ import (
 	"nasspider/pkg/logger"
 	"nasspider/pkg/provider"
 	"nasspider/pkg/task"
+	"nasspider/pkg/cron"
 )
 
 func main() {
@@ -19,6 +20,8 @@ func main() {
 	logger.InitLog()
 	// 初始化服务
 	serctx.InitServerContext()
+	// 初始化定时任务
+	cron.InitCron()
 
 	var err error
 	tvTasks := []bo.TVTask{
