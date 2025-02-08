@@ -25,6 +25,7 @@ func DoTask(tvTask bo.TVTask) error {
 		}
 	}()
 	if tvTask.Status != int(constants.Doing) {
+		logger.Logger.Infof("任务状态不是正在执行, 跳过，等待下次执行")
 		return nil
 	}
 	if tvTask.TotalEp != 0 && tvTask.CurrentEp >= tvTask.TotalEp {

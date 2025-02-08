@@ -15,7 +15,15 @@ type DoMP4Provider struct{}
 // ParseURLs 解析xpath获取URLs,当前集
 func (d DoMP4Provider) ParseURLs(URL string, currentEp int) ([]string, int, error) {
 	// 创建一个上下文
-	ctx, cancel := chromedp.NewContext(context.Background())
+	opts := append(chromedp.DefaultExecAllocatorOptions[:],
+		chromedp.Flag("no-sandbox", true),
+		chromedp.Flag("disable-setuid-sandbox", true),
+		chromedp.Flag("disable-dev-shm-usage", true),
+	)
+	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
+	defer cancel()
+
+	ctx, cancel := chromedp.NewContext(allocCtx)
 	defer cancel()
 
 	// 设置超时时间
