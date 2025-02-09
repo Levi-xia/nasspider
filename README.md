@@ -17,7 +17,7 @@
 Provider为提供下载数据的接口，目前支持的Provider有：Domp4Provider（网站地址：[https://www.ddmp4.cc](https://www.ddmp4.cc)）
 如想扩展，实现`ParseURLs(URL string, CurrentEp int) ([]string, int, error)`接口
 
-> **注意：provider请合理使用，来源均为公开互联网可使用的资源，禁止高频爬取造成网站压力，遵守网站包括不限于reboot.txt的相关规定**
+> **注意：provider请合理使用，来源均为公开互联网可使用的资源，禁止高频爬取造成网站压力，遵守网站包括不限于robots.txt的相关规定**
 
 ### Downloader
 Downloader为下载数据的接口，目前支持的Downloader有：ThunderDownloader
