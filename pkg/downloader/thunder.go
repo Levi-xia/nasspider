@@ -284,8 +284,6 @@ func (t *ThunderDownloader) getPathID(token string, path string) (string, error)
 	if "" == dirList[0] {
 		dirList = dirList[1:]
 	}
-	logger.Logger.Infof("dirList: %v", dirList)
-
 	cnt := 0
 	for {
 		if len(dirList) == cnt {
