@@ -14,7 +14,7 @@
 <img src="https://github.com/Levi-xia/nasspider/blob/main/img/two.png">
 
 ### Provider
-Provider为提供下载数据的接口，目前支持的Provider有：Domp4Provider
+Provider为提供下载数据的接口，目前支持的Provider有：Domp4Provider（网站地址：[https://www.ddmp4.cc](https://www.ddmp4.cc)）
 如想扩展，实现`ParseURLs(URL string, CurrentEp int) ([]string, int, error)`接口
 
 ### Downloader
@@ -39,6 +39,15 @@ TvTask为追更任务，支持通过管理页面添加追剧任务，支持手�
 ### docker
 - 目前已经提供了`Dockfile`,了解Docker的可以自行部署
 - `docker-compose`方式部署暂未impl
+
+## 使用
+以目前支持的，provider为domp4，downloader为thunder举例：
+- 点击新增，添加追剧任务
+- 在弹出层中填写信息
+- 点击保存，保存成功
+- 点击手动追更，手动追更
+
+<img src="https://github.com/Levi-xia/nasspider/blob/main/img/three.png">
 
 ## 其他
 ### 迅雷配置下载文件夹
