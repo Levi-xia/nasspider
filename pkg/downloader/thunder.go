@@ -8,11 +8,14 @@ import (
 	"fmt"
 	"nasspider/config"
 	"nasspider/pkg/constants"
+	"nasspider/pkg/logger"
 	"nasspider/utils"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/zeebo/bencode"
@@ -45,6 +48,15 @@ type dir struct {
 
 type dirResource struct {
 	FileIndex int `json:"file_index"`
+}
+
+type folder struct {
+	Files []file `json:"files"`
+}
+
+type file struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 func NewThunderDownloader() *ThunderDownloader {
@@ -81,6 +93,16 @@ func (t *ThunderDownloader) SendTask(task Task) error {
 
 // doTask 执行任务
 func (t *ThunderDownloader) doTask(token, deviceID string, fileInfo fileInfo, url string, path string) error {
+	var (
+		err    error
+		pathID string
+	)
+	if pathID, err = t.getPathID(token, path); err != nil {
+		return err
+	}
+	if pathID == "" {
+		return fmt.Errorf("get path id error")
+	}
 	resource := fileInfo.List.Resources[0]
 	fileSize := int(resource.FileSize)
 	fileCount := int(resource.FileCount)
@@ -96,12 +118,10 @@ func (t *ThunderDownloader) doTask(token, deviceID string, fileInfo fileInfo, ur
 			"total_file_count": strconv.Itoa(int(fileCount)),
 			"sub_file_index":   t.getFileIndex(fileInfo),
 			"file_id":          "",
-			"parent_folder_id": "",
+			"parent_folder_id": pathID,
 		},
 	}
-	var (
-		err error
-	)
+
 	if _, err = utils.HttpDo(
 		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/task?pan_auth=%s&device_space=", config.Conf.Downloader.Thunder.Host, config.Conf.Downloader.Thunder.Port, token),
 		http.MethodPost,
@@ -255,6 +275,98 @@ func (t *ThunderDownloader) getFileIndex(fileInfo fileInfo) string {
 		}
 	}
 	return fmt.Sprintf("0-%d", maxSubFileIdx)
+}
+
+// getPathId 获取路径ID
+func (t *ThunderDownloader) getPathID(token string, path string) (string, error) {
+	parentID := ""
+	dirList := strings.Split(path, "/")
+	if "" == dirList[0] {
+		dirList = dirList[1:]
+	}
+	logger.Logger.Infof("dirList: %v", dirList)
+
+	cnt := 0
+	for {
+		if len(dirList) == cnt {
+			return parentID, nil
+		}
+		URL := fmt.Sprintf(`%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/files?&space=%s&pan_auth=%s&parent_id=%s&device_space=&limit=100&filters=%s&page_token=&with=withCategoryDownloadPath&with=withCategoryDiskMountPath&with=withCategoryHistoryDownloadPath`,
+			config.Conf.Downloader.Thunder.Host,
+			config.Conf.Downloader.Thunder.Port,
+			url.QueryEscape(t.deviceID),
+			token,
+			parentID,
+			url.QueryEscape(`{"kind":{"eq":"drive#folder"},"trashed":{"eq":false},"phase":{"eq":"PHASE_TYPE_COMPLETE"}}`),
+		)
+		resp, err := utils.HttpDo(
+			URL,
+			http.MethodGet,
+			nil,
+			utils.WithHeaders(map[string]string{
+				"pan_auth": token,
+			}),
+		)
+		if err != nil {
+			return "", err
+		}
+		var folder folder
+		if err := json.Unmarshal(resp, &folder); err != nil {
+			return "", err
+		}
+		exists := false
+		if folder.Files != nil {
+			for _, file := range folder.Files {
+				if file.Name == dirList[cnt] {
+					cnt++
+					exists = true
+					parentID = file.ID
+					break
+				}
+			}
+		}
+		if exists {
+			continue
+		}
+		logger.Logger.Infof("createSubPath: %v == %d == %s", dirList, cnt, parentID)
+
+		if parentID, err = t.createSubPath(token, dirList[cnt], parentID); err != nil {
+			return "", err
+		}
+		if parentID == "" {
+			return "", nil
+		}
+		cnt++
+	}
+}
+
+func (t *ThunderDownloader) createSubPath(token string, dirName string, parentID string) (string, error) {
+	data := map[string]interface{}{
+		"parent_id": parentID,
+		"name":      dirName,
+		"space":     t.deviceID,
+		"kind":      "drive#folder",
+	}
+	resp, err := utils.HttpDo(
+		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/files?pan_auth=%s&device_space=",
+			config.Conf.Downloader.Thunder.Host,
+			config.Conf.Downloader.Thunder.Port,
+			token),
+		http.MethodPost,
+		data,
+		utils.WithHeaders(map[string]string{
+			"pan_auth": token,
+		}),
+	)
+	if err != nil {
+		return "", err
+	}
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(resp, &result); err != nil {
+		return "", err
+	}
+	return result["file"].(map[string]interface{})["id"].(string), nil
 }
 
 // CheckVersion 检查版本
