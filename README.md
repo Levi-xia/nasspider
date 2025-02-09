@@ -3,12 +3,16 @@
 ## 简介
 此项目为[Nas追剧神器](https://github.com/Levi-xia/nasspider)，提供图形化管理界面，旨在能够实现自动追更功能，能够实现根据任务配置，自动解析provider的下载数据，调用downloader进行下载
 
+<img src=".img/2.jpg">
+
 ## 功能
 - 新增追更任务
 - 手动追更
 - 定时追更
 
 ## 实现
+<img src=".img/1.png">
+
 ### Provider
 Provider为提供下载数据的接口，目前支持的Provider有：Domp4Provider
 如想扩展，实现`ParseURLs(URL string, CurrentEp int) ([]string, int, error)`接口
