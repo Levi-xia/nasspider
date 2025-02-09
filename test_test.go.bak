@@ -1,0 +1,406 @@
+package main
+
+import (
+	"bytes"
+	"crypto/sha1"
+	"encoding/base32"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"net/url"
+	"os"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/jlaffaye/bencode"
+)
+
+type XunleiDownloadProvider struct {
+	providerName   string
+	providerType   string
+	httpEndpoint   string
+	deviceID       string
+	tokenStr       string
+	tokenTime      int64
+	requestHandler *http.Client
+}
+
+type Task struct {
+	URL  string
+	Path string
+}
+
+func NewXunleiDownloadProvider(name string, configReader ConfigReader) *XunleiDownloadProvider {
+	return &XunleiDownloadProvider{
+		providerName:   name,
+		providerType:   "xunlei_download_provider",
+		requestHandler: &http.Client{},
+	}
+}
+
+func (x *XunleiDownloadProvider) GetProviderType() string {
+	return x.providerType
+}
+
+func (x *XunleiDownloadProvider) ProviderEnabled() bool {
+	return true // 假设配置读取器已经处理
+}
+
+func (x *XunleiDownloadProvider) ProvidePriority() int {
+	return 1 // 假设配置读取器已经处理
+}
+
+func (x *XunleiDownloadProvider) GetDefectiveTask() []Task {
+	return []Task{}
+}
+
+func (x *XunleiDownloadProvider) SendTorrentTask(task Task) error {
+	log.Printf("Start torrent download: %s", task.URL)
+	token := x.GetPanToken()
+	if token == "" {
+		return nil
+	}
+	magnetURL := x.ConvertTorrentToMagnet(task.URL)
+	fileInfo := x.ListFiles(token, magnetURL)
+	return x.SendTask(token, fileInfo, magnetURL, task.Path)
+}
+
+func (x *XunleiDownloadProvider) DeviceID(urlEncode bool) string {
+	if x.deviceID == "" {
+		infoWatch := "/webman/3rdparty/pan-xunlei-com/index.cgi/device/info/watch"
+		token := x.GetPanToken()
+		req, err := http.NewRequest("POST", x.httpEndpoint+infoWatch, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		req.Header.Set("pan-auth", token)
+		resp, err := x.requestHandler.Do(req)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer resp.Body.Close()
+		var result map[string]interface{}
+		json.NewDecoder(resp.Body).Decode(&result)
+		x.deviceID = result["target"].(string)
+		log.Printf("Get xunlei device_id: %s", x.deviceID)
+	}
+	if urlEncode {
+		return url.QueryEscape(x.deviceID)
+	}
+	return x.deviceID
+}
+
+func (x *XunleiDownloadProvider) SendMagnetTask(task Task) error {
+	log.Printf("Start magnet download: %s", task.URL)
+	token := x.GetPanToken()
+	if token == "" {
+		return nil
+	}
+	fileInfo := x.ListFiles(token, task.URL)
+	return x.SendTask(token, fileInfo, task.URL, task.Path)
+}
+
+func (x *XunleiDownloadProvider) SendGeneralTask(task Task) error {
+	log.Printf("Start general file download: %s", task.URL)
+	token := x.GetPanToken()
+	if token == "" {
+		return nil
+	}
+	fileInfo := x.ListFiles(token, task.URL)
+	return x.SendTask(token, fileInfo, task.URL, task.Path)
+}
+
+func (x *XunleiDownloadProvider) RemoveTasks(tasks []Task) {
+	// TODO: Implement it
+}
+
+func (x *XunleiDownloadProvider) LoadConfig() error {
+	// 假设配置读取器已经处理
+	x.httpEndpoint = "http://127.0.0.1:2345"
+	return nil
+}
+
+func (x *XunleiDownloadProvider) ListFiles(token string, url string) map[string]interface{} {
+	listFilesPath := "/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/resource/list?pan_auth=" + token + "&device_space="
+	reqData := map[string]interface{}{"urls": url}
+	jsonData, err := json.Marshal(reqData)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req, err := http.NewRequest("POST", x.httpEndpoint+listFilesPath, bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("pan-auth", token)
+	resp, err := x.requestHandler.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	var result map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&result)
+	return result
+}
+
+func (x *XunleiDownloadProvider) SendTask(token string, fileInfo map[string]interface{}, url string, path string) error {
+	pathID := x.GetPathID(token, path)
+	if pathID == "" {
+		return fmt.Errorf("get path id error")
+	}
+	taskPath := "/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/task?pan_auth=" + token + "&device_space="
+	fileSize := 0
+	if fileInfo["list"].(map[string]interface{})["resources"].([]interface{})[0].(map[string]interface{})["file_size"] != nil {
+		fileSize = int(fileInfo["list"].(map[string]interface{})["resources"].([]interface{})[0].(map[string]interface{})["file_size"].(float64))
+	}
+	reqPayload := map[string]interface{}{
+		"type":      "user#download-url",
+		"name":      fileInfo["list"].(map[string]interface{})["resources"].([]interface{})[0].(map[string]interface{})["name"],
+		"file_name": fileInfo["list"].(map[string]interface{})["resources"].([]interface{})[0].(map[string]interface{})["name"],
+		"file_size": strconv.Itoa(fileSize),
+		"space":     x.DeviceID(false),
+		"params": map[string]interface{}{
+			"target":            x.DeviceID(false),
+			"url":               url,
+			"total_file_count":  strconv.Itoa(int(fileInfo["list"].(map[string]interface{})["resources"].([]interface{})[0].(map[string]interface{})["file_count"].(float64))),
+			"sub_file_index":    x.GetFileIndex(fileInfo),
+			"file_id":           "",
+			"parent_folder_id":  pathID,
+		},
+	}
+	jsonData, err := json.Marshal(reqPayload)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req, err := http.NewRequest("POST", x.httpEndpoint+taskPath, bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("pan-auth", token)
+	resp, err := x.requestHandler.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		log.Printf("Create tasks error: %s", resp.Status)
+		return fmt.Errorf("create task error")
+	}
+	return nil
+}
+
+func (x *XunleiDownloadProvider) ConvertTorrentToMagnet(torrentFilePath string) string {
+	file, err := os.Open(torrentFilePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	metadata, err := bencode.Decode(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	info := metadata.(map[string]interface{})["info"].(map[string]interface{})
+	hashcontents, err := bencode.Encode(info)
+	if err != nil {
+		log.Fatal(err)
+	}
+	digest := sha1.Sum(hashcontents)
+	b32hash := base32.StdEncoding.EncodeToString(digest[:])
+	return "magnet:?xt=urn:btih:" + b32hash + "&dn=" + info["name"].(string)
+}
+
+func (x *XunleiDownloadProvider) CreateSubPath(token string, dirName string, parentID string) string {
+	path := "/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/files?pan_auth=" + token + "&device_space="
+	data := map[string]interface{}{
+		"parent_id": parentID,
+		"name":      dirName,
+		"space":     x.DeviceID(false),
+		"kind":      "drive#folder",
+	}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req, err := http.NewRequest("POST", x.httpEndpoint+path, bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("pan-auth", token)
+	resp, err := x.requestHandler.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	var result map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&result)
+	return result["file"].(map[string]interface{})["id"].(string)
+}
+
+func (x *XunleiDownloadProvider) GetPathID(token string, path string) string {
+	parentID := ""
+	dirList := strings.Split(path, "/")
+	if "" == dirList[0] {
+		dirList = dirList[1:]
+	}
+	cnt := 0
+	for {
+		if len(dirList) == cnt {
+			return parentID
+		}
+		filePath := "/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/files?space=" + x.DeviceID(true) + "&limit=200&filters=%7B%22kind%22%3A%7B%22eq%22%3A%22drive%23folder%22%7D%7D&page_token=&pan_auth=" + token + "&device_space=&parent_id=" + parentID
+		req, err := http.NewRequest("GET", x.httpEndpoint+filePath, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		req.Header.Set("pan-auth", token)
+		resp, err := x.requestHandler.Do(req)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			log.Printf("Get files id error: %s", resp.Status)
+			return ""
+		}
+		var dirs map[string]interface{}
+		json.NewDecoder(resp.Body).Decode(&dirs)
+		if parentID == "" {
+			parentID = dirs["files"].([]interface{})[0].(map[string]interface{})["id"].(string)
+			continue
+		}
+		exists := false
+		if dirs["files"] != nil {
+			for _, dirNow := range dirs["files"].([]interface{}) {
+				if dirNow.(map[string]interface{})["name"] == dirList[cnt] {
+					cnt++
+					exists = true
+					parentID = dirNow.(map[string]interface{})["id"].(string)
+					break
+				}
+			}
+		}
+		if exists {
+			continue
+		}
+		parentID = x.CreateSubPath(token, dirList[cnt], parentID)
+		if parentID == "" {
+			return ""
+		}
+		cnt++
+	}
+}
+
+func (x *XunleiDownloadProvider) GetServerVersion() string {
+	req, err := http.NewRequest("GET", x.httpEndpoint+"/webman/3rdparty/pan-xunlei-com/index.cgi/launcher/status", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	resp, err := x.requestHandler.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	var result map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&result)
+	return result["running_version"].(string)
+}
+
+func (x *XunleiDownloadProvider) GetFileIndex(fileInfo map[string]interface{}) string {
+	fileCount := int(fileInfo["list"].(map[string]interface{})["resources"].([]interface{})[0].(map[string]interface{})["file_count"].(float64))
+	if fileCount == 1 {
+		return "--1,"
+	}
+	maxSubFileIdx := 0
+	for _, subFileObj := range fileInfo["list"].(map[string]interface{})["resources"].([]interface{})[0].(map[string]interface{})["dir"].(map[string]interface{})["resources"].([]interface{}) {
+		if subFileObj.(map[string]interface{})["file_index"] != nil && int(subFileObj.(map[string]interface{})["file_index"].(float64)) > maxSubFileIdx {
+			maxSubFileIdx = int(subFileObj.(map[string]interface{})["file_index"].(float64))
+		}
+	}
+	return fmt.Sprintf("0-%d", maxSubFileIdx)
+}
+
+func (x *XunleiDownloadProvider) GetPanToken() string {
+	serverVersion := x.GetServerVersion()
+	if checkVersionAtLeast(serverVersion, "3.21.0") {
+		if x.tokenStr != "" && x.tokenTime+600 > time.Now().Unix() {
+			return x.tokenStr
+		}
+		req, err := http.NewRequest("GET", x.httpEndpoint+"/webman/3rdparty/pan-xunlei-com/index.cgi/", nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		resp, err := x.requestHandler.Do(req)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		re := regexp.MustCompile(`function uiauth\(value\){ return "(.*)" }`)
+		matches := re.FindStringSubmatch(string(body))
+		if len(matches) > 1 {
+			x.tokenStr = matches[1]
+			x.tokenTime = time.Now().Unix()
+			log.Printf("Get xunlei token from html: %s", x.tokenStr)
+			return x.tokenStr
+		}
+		log.Printf("Get xunlei token from html error")
+		return ""
+	}
+	xunleiE := time.Now().Unix()
+	xunleiCn := time.Now().Unix()
+	req, err := http.NewRequest("GET", x.httpEndpoint+"/webman/3rdparty/pan-xunlei-com/index.cgi/device/now", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	resp, err := x.requestHandler.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	var result map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&result)
+	xunleiA1 := int64(result["now"].(float64))
+	xunleiKn := xunleiA1 - xunleiCn
+	token := GetXunLeiToken(xunleiE + xunleiKn)
+	log.Printf("Get xunlei token: %s", token)
+	return token
+}
+
+func checkVersionAtLeast(version string, target string) bool {
+	return version >= target
+}
+
+func GetXunLeiToken(timestamp int64) string {
+	// 这里需要实现GetXunLeiToken的逻辑
+	return "dummy_token"
+}
+
+type ConfigReader interface {
+	Read() map[string]interface{}
+}
+
+func main1() {
+	// 示例使用
+	configReader := &DummyConfigReader{}
+	xunlei := NewXunleiDownloadProvider("xunlei", configReader)
+	xunlei.LoadConfig()
+	task := Task{URL: "http://example.com/file.torrent", Path: "/downloads"}
+	xunlei.SendTorrentTask(task)
+}
+
+type DummyConfigReader struct{}
+
+func (d *DummyConfigReader) Read() map[string]interface{} {
+	return map[string]interface{}{
+		"enable":       true,
+		"priority":     1,
+		"http_endpoint": "http://127.0.0.1:2345",
+	}
+}

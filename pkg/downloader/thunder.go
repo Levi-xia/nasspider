@@ -328,7 +328,7 @@ func (t *ThunderDownloader) getPathID(token string, path string) (string, error)
 		if exists {
 			continue
 		}
-		logger.Logger.Infof("createSubPath: %v == %d == %s", dirList, cnt, parentID)
+		logger.Logger.Infof("创建文件夹: %v == %d == %s", dirList, cnt, parentID)
 
 		if parentID, err = t.createSubPath(token, dirList[cnt], parentID); err != nil {
 			return "", err

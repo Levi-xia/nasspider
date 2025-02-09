@@ -75,7 +75,7 @@ class XunleiDownloadProvider(provider.DownloadProvider):
         logging.info('Start general file download:%s', task.url)
         token = self.get_pan_token()
         if token == "":
-            return None
+            return Nonetest_test.go.bak
         file_info = self.list_files(token, task.url)
         return self.send_task(token, file_info, task.url, task.path)
 
