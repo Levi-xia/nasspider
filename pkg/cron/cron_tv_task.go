@@ -33,7 +33,7 @@ func CronCommitExecuteTvTask() {
 			Page:     page,
 			PageSize: pageSize,
 			StatusList: []int{
-				int(constants.Doing),
+				int(constants.Waiting),
 			},
 		})
 		if err != nil {
@@ -57,7 +57,7 @@ func CronCommitExecuteTvTask() {
 						logger.Logger.Errorf("任务执行失败:%v", err)
 					}
 				}()
-				task.DoTask(t)
+				task.DoTask(t, true)
 			}(tvTask)
 		}
 		wg.Wait() // 等待所有任务完成

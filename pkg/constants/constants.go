@@ -11,16 +11,18 @@ var (
 )
 
 var (
-	Doing  TaskStatus = 0
-	Finish TaskStatus = 1
-	Abort  TaskStatus = 2
-	Error  TaskStatus = 3
+	Waiting TaskStatus = 0
+	Doing   TaskStatus = 1
+	Finish  TaskStatus = 2
+	Abort   TaskStatus = 3
+	Error   TaskStatus = 4
 
 	TaskStatusMap = map[TaskStatus]string{
-		Doing:  "进行中",
-		Finish: "已完成",
-		Abort:  "已中止",
-		Error:  "已出错",
+		Waiting: "等待中",
+		Doing:   "追更中",
+		Finish:  "已完成",
+		Abort:   "已中止",
+		Error:   "已出错",
 	}
 )
 

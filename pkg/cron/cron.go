@@ -14,7 +14,8 @@ type crontab struct {
 
 // 在这里加cron任务
 var cronTabs = []crontab{
-	{spec: "@every 2h", cmd: CronCommitExecuteTvTask, enable: false},
+	// 每2小时整点执行一次
+	{spec: "0 */2 * * *", cmd: CronCommitExecuteTvTask, enable: true},
 }
 
 func InitCron() {

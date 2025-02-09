@@ -175,7 +175,7 @@ func TriggerTask(c *gin.Context) {
 				logger.Logger.Errorf("任务失败:%v", err)
 			}
 		}()
-		task.DoTask(tvTask)
+		task.DoTask(tvTask, false)
 	}()
 
 	c.JSON(http.StatusOK, resp.Success(&dto.TriggerTaskResponse{
