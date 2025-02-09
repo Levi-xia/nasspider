@@ -47,7 +47,7 @@ TvTask为追更任务，支持通过管理页面添加追剧任务，支持手�
 - 点击保存，保存成功
 - 点击手动追更，手动追更
 
-<img src="https://github.com/Levi-xia/nasspider/blob/main/img/three.jpg" scale="0.5">
+<img src="https://github.com/Levi-xia/nasspider/blob/main/img/three.jpg" style="width: 50%">
 
 ## 其他
 ### 迅雷配置下载文件夹
