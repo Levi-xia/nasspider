@@ -4,6 +4,7 @@ import (
 	"log"
 	"nasspider/pkg/constants"
 	"os"
+	"strconv"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
@@ -101,12 +102,31 @@ func GetConf[T any](def T, envKey constants.ENVConfig) T {
 	if envKey == "" {
 		return def
 	}
-	// 从环境变量中获取配置值
-	if val := os.Getenv(string(envKey)); val != "" {
-		if v, ok := any(val).(T); ok {
-			return v
+	val := os.Getenv(string(envKey))
+	if val == "" {
+		return def
+	}
+
+	// 根据默认值类型进行相应的类型转换
+	switch any(def).(type) {
+	case string:
+		return any(val).(T)
+	case int:
+		if v, err := strconv.Atoi(val); err == nil {
+			return any(v).(T)
+		}
+	case int64:
+		if v, err := strconv.ParseInt(val, 10, 64); err == nil {
+			return any(v).(T)
+		}
+	case float64:
+		if v, err := strconv.ParseFloat(val, 64); err == nil {
+			return any(v).(T)
+		}
+	case bool:
+		if v, err := strconv.ParseBool(val); err == nil {
+			return any(v).(T)
 		}
 	}
 	return def
 }
-

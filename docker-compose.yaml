@@ -36,13 +36,13 @@ services:
       MYSQL_PORT: '3396'
       MYSQL_USER: 'root'
       MYSQL_PASSWORD: '123456'
-      SERVER_PORT: '8088'
+      SERVER_PORT: '8089'
       THUNDER_HOST: 'http://192.168.0.111'
       THUNDER_PORT: '2345'
       ADMIN_USERNAME: 'admin'
       ADMIN_PASSWORD: '123456'
     ports:
-      - "8088:8088"
+      - "8089:8089"
     networks:
       nas-spider-network:
         aliases:
