@@ -44,7 +44,57 @@ TvTask为追更任务，支持通过管理页面添加追剧任务，支持手�
 
 ### docker
 - 目前已经提供了`Dockfile`,了解Docker的可以自行部署
-- `docker-compose`方式部署暂未impl
+- `docker-compose`方式部署
+```yaml
+version: '3'
+
+networks:
+  nas-spider-network:
+    driver: bridge
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: nas-spider-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: '123456'
+      MYSQL_DATABASE: 'nas-spider'
+      MYSQL_ROOT_HOST: '%'
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    networks:
+      nas-spider-network:
+        aliases:
+          - nas-spider-network-mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+
+  web:
+    image: registry.cn-beijing.aliyuncs.com/levicy/nas-spider:latest
+    container_name: nas-spider-web
+    restart: always
+    environment:
+      MYSQL_HOST: 'nas-spider-network-mysql'
+      MYSQL_PORT: '3306'
+      MYSQL_USER: 'root'
+      MYSQL_PASSWORD: '123456'
+      SERVER_PORT: '8089'
+      THUNDER_HOST: 'http://192.168.0.111'
+      THUNDER_PORT: '2345'
+      ADMIN_USERNAME: 'admin'
+      ADMIN_PASSWORD: 'admin123456!'
+    ports:
+      - "8089:8089"
+    networks:
+      nas-spider-network:
+        aliases:
+          - nas-spider-network-web
+    depends_on:
+      - mysql
+```
 
 ## 使用
 以目前支持的，provider为domp4，downloader为thunder举例：
