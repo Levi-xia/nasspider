@@ -22,6 +22,10 @@ type TvTask struct {
 	common.SoftDeletes
 }
 
+func init() {
+	serctx.SerCtx.Db.AutoMigrate(&TvTask{})
+}
+
 func (TvTask) TableName() string {
 	return "tv_task"
 }
