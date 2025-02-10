@@ -28,7 +28,7 @@ services:
       - --default-authentication-plugin=mysql_native_password
 
   web:
-    image: levicy/nas-spider:latest
+    image: registry.cn-beijing.aliyuncs.com/levicy/nas-spider:latest
     container_name: nas-spider-web
     restart: always
     environment:
