@@ -32,9 +32,7 @@ func setupRouter() *gin.Engine {
 func RunServer() {
 	r := setupRouter()
 
-	if config.Conf.Server.Debug {
-		gin.SetMode(gin.DebugMode)
-	} else {
+	if !config.Conf.Server.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	srv := &http.Server{
