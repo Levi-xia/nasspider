@@ -64,12 +64,13 @@ func InitLog() (err error) {
     errorCore := zapcore.NewCore(encoder, writeSyncerError, errorLevel)
     
 	// 标准输出
+	var core zapcore.Core
 	if config.Conf.Server.Debug {
 		consoleEncoder := zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
 		std := zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), zap.DebugLevel)
-		core := zapcore.NewTee(infoCore, debugCore, warnCore, errorCore, std)
+		core = zapcore.NewTee(infoCore, debugCore, warnCore, errorCore, std)
 	} else {
-		core := zapcore.NewTee(infoCore, debugCore, warnCore, errorCore)
+		core = zapcore.NewTee(infoCore, debugCore, warnCore, errorCore)
 	}
 	logger := zap.New(core, zap.AddCaller())
 	zap.ReplaceGlobals(logger)
