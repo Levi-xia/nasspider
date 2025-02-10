@@ -1,8 +1,9 @@
 package common
 
 import (
-    "gorm.io/gorm"
-    "time"
+	"time"
+
+	"gorm.io/gorm"
 )
 
 // 自增ID主键
@@ -12,8 +13,8 @@ type ID struct {
 
 // 创建、更新时间
 type Timestamps struct {
-    CreatedAt time.Time `json:"created_at" gorm:"column:created_at"`
-    UpdatedAt time.Time `json:"updated_at" gorm:"column:updated_at" `
+    CreatedAt time.Time `json:"created_at" gorm:"column:created_at;autoCreateTime"`
+    UpdatedAt time.Time `json:"updated_at" gorm:"column:updated_at;autoUpdateTime"`
 }
 
 // 软删除

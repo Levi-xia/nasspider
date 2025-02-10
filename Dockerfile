@@ -35,8 +35,12 @@ RUN apt-get update && apt-get install -y \
     wget \
     gnupg2 \
     chromium-browser \
+    tzdata \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo "Asia/Shanghai" > /etc/timezone \
+    && dpkg-reconfigure -f noninteractive tzdata
 
 # 创建用户组和用户
 RUN groupadd -r work && \

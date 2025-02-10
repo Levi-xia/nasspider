@@ -5,6 +5,7 @@ import (
 	"log"
 	"nasspider/config"
 	"nasspider/pkg/constants"
+	"nasspider/pkg/model"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -33,6 +34,7 @@ func initMysql() (*gorm.DB, error) {
 		log.Fatalf("mysql connect error %v", err)
 		return nil, err
 	} else {
+		db.AutoMigrate(&model.TvTask{})
 		sqlDB, _ := db.DB()
 		sqlDB.SetMaxIdleConns(dbConfig.MaxIdleConns)
 		sqlDB.SetMaxOpenConns(dbConfig.MaxOpenConns)

@@ -2,37 +2,15 @@ package service
 
 import (
 	"nasspider/pkg/bo"
-	"nasspider/pkg/common"
+	"nasspider/pkg/model"
 	"nasspider/pkg/serctx"
 	"nasspider/utils"
 )
 
-type TvTask struct {
-	common.ID    `gorm:"primary_key;auto_increment:10000000;column:id;comment:id"`
-	Name         string `gorm:"column:name;type:varchar(1024);not null;default:'';comment:名称"`
-	URL          string `gorm:"column:url;type:varchar(1024);not null;default:'';comment:链接"`
-	TotalEp      int    `gorm:"column:total_ep;type:int(11);not null;default:0;comment:总集数"`
-	CurrentEp    int    `gorm:"column:current_ep;type:int(11);not null;default:0;comment:当前集数"`
-	Status       int    `gorm:"column:status;type:int(11);not null;default:0;comment:状态"`
-	DownloadPath string `gorm:"column:download_path;type:varchar(1024);not null;default:'';comment:下载路径"`
-	Type         string `gorm:"column:type;type:varchar(32);not null;default:'';comment:类型"`
-	Provider     string `gorm:"column:provider;type:varchar(32);not null;default:'';comment:提供商"`
-	Downloader   string `gorm:"column:downloader;type:varchar(32);not null;default:'';comment:下载器"`
-	common.Timestamps
-	common.SoftDeletes
-}
-
-func init() {
-	serctx.SerCtx.Db.AutoMigrate(&TvTask{})
-}
-
-func (TvTask) TableName() string {
-	return "tv_task"
-}
 
 func GetTaskList(req *bo.GetTaskListRequest) (*bo.GetTaskListResponse, error) {
 	var (
-		tasks   []TvTask
+		tasks   []model.TvTask
 		tvTasks []bo.TVTask
 	)
 	db := serctx.SerCtx.Db
@@ -61,7 +39,7 @@ func CountTaskList(req *bo.CountTaskListRequest) (*bo.CountTaskListResponse, err
 	if len(req.StatusList) > 0 {
 		db = db.Where("status in?", req.StatusList)
 	}
-	if err := db.Model(&TvTask{}).Count(&count).Error; err != nil {
+	if err := db.Model(&model.TvTask{}).Count(&count).Error; err != nil {
 		return nil, err
 	}
 	return &bo.CountTaskListResponse{
@@ -69,7 +47,7 @@ func CountTaskList(req *bo.CountTaskListRequest) (*bo.CountTaskListResponse, err
 	}, nil
 }
 func GetTask(req *bo.GetTaskRequest) (*bo.GetTaskResponse, error) {
-	var task TvTask
+	var task model.TvTask
 	if err := serctx.SerCtx.Db.Where("id = ?", req.ID).First(&task).Error; err != nil {
 		return nil, err
 	}
@@ -83,7 +61,7 @@ func GetTask(req *bo.GetTaskRequest) (*bo.GetTaskResponse, error) {
 }
 
 func AddTask(req *bo.AddTaskRequest) (*bo.AddTaskResponse, error) {
-	task := TvTask{
+	task := model.TvTask{
 		Name:         req.Name,
 		URL:          req.URL,
 		TotalEp:      req.TotalEp,
@@ -103,7 +81,7 @@ func AddTask(req *bo.AddTaskRequest) (*bo.AddTaskResponse, error) {
 }
 
 func EditTask(req *bo.EditTaskRequest) (*bo.EditTaskResponse, error) {
-	if err := serctx.SerCtx.Db.Model(&TvTask{}).Where("id = ?", req.ID).Updates(map[string]interface{}{
+	if err := serctx.SerCtx.Db.Model(&model.TvTask{}).Where("id = ?", req.ID).Updates(map[string]interface{}{
 		"name":          req.Name,
 		"url":           req.URL,
 		"total_ep":      req.TotalEp,
@@ -122,7 +100,7 @@ func EditTask(req *bo.EditTaskRequest) (*bo.EditTaskResponse, error) {
 }
 
 func UpdateCurrentEp(req *bo.UpdateCurrentEpRequest) (*bo.UpdateCurrentEpResponse, error) {
-	if err := serctx.SerCtx.Db.Model(&TvTask{}).Where("id = ?", req.ID).Update("current_ep", req.CurrentEp).Error; err != nil {
+	if err := serctx.SerCtx.Db.Model(&model.TvTask{}).Where("id = ?", req.ID).Update("current_ep", req.CurrentEp).Error; err != nil {
 		return nil, err
 	}
 	return &bo.UpdateCurrentEpResponse{
@@ -131,7 +109,7 @@ func UpdateCurrentEp(req *bo.UpdateCurrentEpRequest) (*bo.UpdateCurrentEpRespons
 }
 
 func UpdateStatus(req *bo.UpdateStatusRequest) (*bo.UpdateStatusResponse, error) {
-	if err := serctx.SerCtx.Db.Model(&TvTask{}).Where("id =?", req.ID).Update("status", req.Status).Error; err != nil {
+	if err := serctx.SerCtx.Db.Model(&model.TvTask{}).Where("id =?", req.ID).Update("status", req.Status).Error; err != nil {
 		return nil, err
 	}
 	return &bo.UpdateStatusResponse{
@@ -139,7 +117,7 @@ func UpdateStatus(req *bo.UpdateStatusRequest) (*bo.UpdateStatusResponse, error)
 	}, nil
 }
 
-func mo2Bo(m TvTask) (bo.TVTask, error) {
+func mo2Bo(m model.TvTask) (bo.TVTask, error) {
 	return bo.TVTask{
 		ID:           m.ID.ID,
 		URL:          m.URL,
