@@ -1,5 +1,6 @@
 server:
   port: 8088
+  debug: true
 
 passport:
   username: "admin"

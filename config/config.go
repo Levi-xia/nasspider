@@ -23,7 +23,8 @@ type configuration struct {
 }
 
 type ServerConfig struct {
-	Port int `mapstructure:"port" json:"port" yaml:"port"`
+	Port  int  `mapstructure:"port" json:"port" yaml:"port"`
+	Debug bool `mapstructure:"debug" json:"debug" yaml:"debug"`
 }
 
 type JwtConfig struct {

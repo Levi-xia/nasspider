@@ -42,16 +42,35 @@ func InitLog() (err error) {
 	writeSyncerWarn := getLogWriter(cfg.WarnFileName, cfg.MaxSize, cfg.MaxBackups, cfg.MaxAge)
 	writeSyncerError := getLogWriter(cfg.ErrorFileName, cfg.MaxSize, cfg.MaxBackups, cfg.MaxAge)
 
-	encoder := getEncoder()
-	// 文件输出
-	debugCore := zapcore.NewCore(encoder, writeSyncerDebug, zap.DebugLevel)
-	infoCore := zapcore.NewCore(encoder, writeSyncerInfo, zap.InfoLevel)
-	warnCore := zapcore.NewCore(encoder, writeSyncerWarn, zap.WarnLevel)
-	errorCore := zapcore.NewCore(encoder, writeSyncerError, zap.ErrorLevel)
+    // 定义日志级别
+    debugLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+        return lvl == zapcore.DebugLevel
+    })
+    infoLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+        return lvl == zapcore.InfoLevel
+    })
+    warnLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+        return lvl == zapcore.WarnLevel
+    })
+    errorLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+        return lvl == zapcore.ErrorLevel
+    })
+
+    encoder := getEncoder()
+    // 文件输出
+    debugCore := zapcore.NewCore(encoder, writeSyncerDebug, debugLevel)
+    infoCore := zapcore.NewCore(encoder, writeSyncerInfo, infoLevel)
+    warnCore := zapcore.NewCore(encoder, writeSyncerWarn, warnLevel)
+    errorCore := zapcore.NewCore(encoder, writeSyncerError, errorLevel)
+    
 	// 标准输出
-	consoleEncoder := zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
-	std := zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), zap.DebugLevel)
-	core := zapcore.NewTee(infoCore, debugCore, warnCore, errorCore, std)
+	if config.Conf.Server.Debug {
+		consoleEncoder := zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
+		std := zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), zap.DebugLevel)
+		core := zapcore.NewTee(infoCore, debugCore, warnCore, errorCore, std)
+	} else {
+		core := zapcore.NewTee(infoCore, debugCore, warnCore, errorCore)
+	}
 	logger := zap.New(core, zap.AddCaller())
 	zap.ReplaceGlobals(logger)
 	Logger = logger.Sugar()
@@ -61,7 +80,7 @@ func InitLog() (err error) {
 func getEncoder() zapcore.Encoder {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = func(time time.Time, encoder zapcore.PrimitiveArrayEncoder) {
-		encoder.AppendString(time.Format("2006-01-02 15:04:05"))
+		encoder.AppendString(time.Local().Format("2006-01-02 15:04:05"))
 	}
 	encoderConfig.TimeKey = "time"
 	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder

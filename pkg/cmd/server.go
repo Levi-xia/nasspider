@@ -32,6 +32,11 @@ func setupRouter() *gin.Engine {
 func RunServer() {
 	r := setupRouter()
 
+	if config.Conf.Server.Debug {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", config.Conf.Server.Port),
 		Handler: r,
