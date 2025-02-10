@@ -121,9 +121,11 @@ func (t *ThunderDownloader) doTask(token, deviceID string, fileInfo fileInfo, ur
 			"parent_folder_id": pathID,
 		},
 	}
+	host := config.GetConf(config.Conf.Downloader.Thunder.Host, constants.ENV_THUNDER_HOST)
+	port := config.GetConf(config.Conf.Downloader.Thunder.Port, constants.ENV_THUNDER_PORT)
 
 	if _, err = utils.HttpDo(
-		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/task?pan_auth=%s&device_space=", config.Conf.Downloader.Thunder.Host, config.Conf.Downloader.Thunder.Port, token),
+		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/task?pan_auth=%s&device_space=", host, port, token),
 		http.MethodPost,
 		reqPayload,
 		utils.WithHeaders(map[string]string{
@@ -140,8 +142,11 @@ func (t *ThunderDownloader) ListFiles(token, url string) (fileInfo, error) {
 		err    error
 		result fileInfo
 	)
+	host := config.GetConf(config.Conf.Downloader.Thunder.Host, constants.ENV_THUNDER_HOST)
+	port := config.GetConf(config.Conf.Downloader.Thunder.Port, constants.ENV_THUNDER_PORT)
+
 	if resp, err = utils.HttpDo(
-		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/resource/list?pan_auth=%s&device_space=", config.Conf.Downloader.Thunder.Host, config.Conf.Downloader.Thunder.Port, token),
+		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/resource/list?pan_auth=%s&device_space=", host, port, token),
 		http.MethodPost,
 		map[string]interface{}{
 			"urls": url,
@@ -171,8 +176,11 @@ func (t *ThunderDownloader) getPanToken() (version string, err error) {
 	}
 	var resp []byte
 	// 发起HTTP请求
+	host := config.GetConf(config.Conf.Downloader.Thunder.Host, constants.ENV_THUNDER_HOST)
+	port := config.GetConf(config.Conf.Downloader.Thunder.Port, constants.ENV_THUNDER_PORT)
+
 	if resp, err = utils.HttpDo(
-		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/", config.Conf.Downloader.Thunder.Host, config.Conf.Downloader.Thunder.Port),
+		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/", host, port),
 		string(http.MethodGet), nil); err != nil {
 		return
 	}
@@ -198,8 +206,11 @@ func (t *ThunderDownloader) getDeviceID() (deviceID string, err error) {
 	if token, err = t.getPanToken(); err != nil {
 		return
 	}
+	host := config.GetConf(config.Conf.Downloader.Thunder.Host, constants.ENV_THUNDER_HOST)
+	port := config.GetConf(config.Conf.Downloader.Thunder.Port, constants.ENV_THUNDER_PORT)
+
 	if resp, err = utils.HttpDo(
-		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/device/info/watch", config.Conf.Downloader.Thunder.Host, config.Conf.Downloader.Thunder.Port),
+		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/device/info/watch", host, port),
 		string(http.MethodPost), nil,
 		utils.WithHeaders(map[string]string{
 			"pan_auth": token,
@@ -219,8 +230,11 @@ func (t *ThunderDownloader) getServerVersion() (string, error) {
 		resp []byte
 		err  error
 	)
+	host := config.GetConf(config.Conf.Downloader.Thunder.Host, constants.ENV_THUNDER_HOST)
+	port := config.GetConf(config.Conf.Downloader.Thunder.Port, constants.ENV_THUNDER_PORT)
+
 	if resp, err = utils.HttpDo(
-		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/launcher/status", config.Conf.Downloader.Thunder.Host, config.Conf.Downloader.Thunder.Port),
+		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/launcher/status",host, port),
 		string(http.MethodGet), nil); err != nil {
 		return "", err
 	}
@@ -289,9 +303,12 @@ func (t *ThunderDownloader) getPathID(token string, path string) (string, error)
 		if len(dirList) == cnt {
 			return parentID, nil
 		}
+		host := config.GetConf(config.Conf.Downloader.Thunder.Host, constants.ENV_THUNDER_HOST)
+		port := config.GetConf(config.Conf.Downloader.Thunder.Port, constants.ENV_THUNDER_PORT)
+
 		URL := fmt.Sprintf(`%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/files?&space=%s&pan_auth=%s&parent_id=%s&device_space=&limit=100&filters=%s&page_token=&with=withCategoryDownloadPath&with=withCategoryDiskMountPath&with=withCategoryHistoryDownloadPath`,
-			config.Conf.Downloader.Thunder.Host,
-			config.Conf.Downloader.Thunder.Port,
+			host,
+			port,
 			url.QueryEscape(t.deviceID),
 			token,
 			parentID,
@@ -345,11 +362,11 @@ func (t *ThunderDownloader) createSubPath(token string, dirName string, parentID
 		"space":     t.deviceID,
 		"kind":      "drive#folder",
 	}
+	host := config.GetConf(config.Conf.Downloader.Thunder.Host, constants.ENV_THUNDER_HOST)
+	port := config.GetConf(config.Conf.Downloader.Thunder.Port, constants.ENV_THUNDER_PORT)
+
 	resp, err := utils.HttpDo(
-		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/files?pan_auth=%s&device_space=",
-			config.Conf.Downloader.Thunder.Host,
-			config.Conf.Downloader.Thunder.Port,
-			token),
+		fmt.Sprintf("%s:%d/webman/3rdparty/pan-xunlei-com/index.cgi/drive/v1/files?pan_auth=%s&device_space=", host, port, token),
 		http.MethodPost,
 		data,
 		utils.WithHeaders(map[string]string{

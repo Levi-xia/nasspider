@@ -1,9 +1,10 @@
 package serctx
 
 import (
+	"fmt"
 	"log"
 	"nasspider/config"
-	"strconv"
+	"nasspider/pkg/constants"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -12,7 +13,11 @@ import (
 
 func initMysql() (*gorm.DB, error) {
 	dbConfig := config.Conf.DB
-	dsn := dbConfig.Username + ":" + dbConfig.Password + "@tcp(" + dbConfig.Host + ":" + strconv.Itoa(dbConfig.Port) + ")/" + dbConfig.Database + "?charset=" + dbConfig.Charset + "&parseTime=True&loc=Local"
+	username := config.GetConf(dbConfig.Username, constants.ENV_MYSQL_USER)
+	password := config.GetConf(dbConfig.Password, constants.ENV_MYSQL_PASSWORD)
+	host := config.GetConf(dbConfig.Host, constants.ENV_MYSQL_HOST)
+	port := config.GetConf(dbConfig.Port, constants.ENV_MYSQL_PORT)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True&loc=Local", username, password, host, port, dbConfig.Database, dbConfig.Charset)
 	mysqlConfig := mysql.Config{
 		DSN:                       dsn,   // DSN data source name
 		DefaultStringSize:         191,   // string 类型字段的默认长度

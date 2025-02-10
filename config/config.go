@@ -2,6 +2,8 @@ package config
 
 import (
 	"log"
+	"nasspider/pkg/constants"
+	"os"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
@@ -94,3 +96,17 @@ func InitConfig() *Config {
 	}
 	return config
 }
+
+func GetConf[T any](def T, envKey constants.ENVConfig) T {
+	if envKey == "" {
+		return def
+	}
+	// 从环境变量中获取配置值
+	if val := os.Getenv(string(envKey)); val != "" {
+		if v, ok := any(val).(T); ok {
+			return v
+		}
+	}
+	return def
+}
+
