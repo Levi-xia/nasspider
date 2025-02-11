@@ -17,34 +17,28 @@
 Provider为提供下载数据的接口，目前支持的Provider有：
 - Domp4Provider（网站地址：[https://www.ddmp4.cc](https://www.ddmp4.cc)）
 
-如想扩展，实现`ParseURLs(URL string, CurrentEp int) ([]string, int, error)`接口
-
-> **注意：provider请合理使用，来源均为公开互联网可使用的资源，禁止高频爬取造成网站压力，遵守网站包括不限于robots.txt的相关规定**
+> 如想扩展，实现`ParseURLs(URL string, CurrentEp int) ([]string, int, error)`接口
+⚠️provider请合理使用，来源均为公开互联网可使用的资源，禁止高频爬取造成网站压力，遵守网站包括不限于robots.txt的相关规定
 
 ### Downloader
 Downloader为下载数据的接口，目前支持的Downloader有：
 - ThunderDownloader
 
-如想扩展，实现`SendTask(task Task) error`接口
+> 预期将会支持QB、Aria2等Downloader，如想扩展，实现`SendTask(task Task) error`接口
 
 ### TvTask
 TvTask为追更任务，支持通过管理页面添加追剧任务，支持手动追剧，支持定时追剧
 
 ## 运行
 
-### 运行准备
-- 修改`config/config.yaml`内容，配置管理后台账号密码、数据库链接信息、迅雷地址
-- 创建数据库、根据`sql/sql.sql`创建数据表
-
 ### 本地运行
+- 修改`config/config.yaml`内容，配置管理后台账号密码、数据库链接信息、迅雷地址
 - 执行`go run main.go`
-
-### 定时追更配置
-`pkg/cron/cron.go`中配置定时任务
+- `pkg/cron/cron.go`中配置定时任务
 
 ### docker
 - 目前已经提供了`Dockfile`,了解Docker的可以自行部署
-- `docker-compose`方式部署
+- 如果你是NAS发烧友，但是不太懂开发，那么本项目也提供`docker-compose`方式一键部署
 ```yaml
 version: '3'
 
@@ -58,7 +52,7 @@ services:
     container_name: nas-spider-mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: '123456'
+      MYSQL_ROOT_PASSWORD: '<数据库密码>'
       MYSQL_DATABASE: 'nas-spider'
       MYSQL_ROOT_HOST: '%'
     volumes:
@@ -80,14 +74,14 @@ services:
       MYSQL_HOST: 'nas-spider-network-mysql'
       MYSQL_PORT: '3306'
       MYSQL_USER: 'root'
-      MYSQL_PASSWORD: '123456'
-      SERVER_PORT: '8089'
-      THUNDER_HOST: 'http://192.168.0.111'
-      THUNDER_PORT: '2345'
-      ADMIN_USERNAME: 'admin'
-      ADMIN_PASSWORD: 'admin123456!'
+      MYSQL_PASSWORD: '<数据库密码>'
+      SERVER_PORT: '<服务器端口号>'
+      THUNDER_HOST: 'http://<迅雷地址>'
+      THUNDER_PORT: '<迅雷端口号>'
+      ADMIN_USERNAME: '<后台账号>'
+      ADMIN_PASSWORD: '<后台密码>'
     ports:
-      - "8089:8089"
+      - "<映射宿主机端口号>:<服务器端口号>"
     networks:
       nas-spider-network:
         aliases:
