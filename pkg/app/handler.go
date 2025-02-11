@@ -77,8 +77,10 @@ func SubmitLogin(c *gin.Context) {
 		return
 	}
 	passportConf := config.Conf.Passport
+	username := config.GetConf(passportConf.Username, constants.ENV_ADMIN_USERNAME)
+	password := config.GetConf(passportConf.Password, constants.ENV_ADMIN_PASSWORD)
 
-	if req.Username != passportConf.Username || req.Password != passportConf.Password {
+	if req.Username != username || req.Password != password {
 		c.JSON(http.StatusOK, resp.Error(common.BusinessError, "用户名或密码错误"))
 		return
 	}
