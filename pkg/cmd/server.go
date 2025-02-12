@@ -18,6 +18,9 @@ import (
 )
 
 func setupRouter() *gin.Engine {
+	if !config.Conf.Server.Debug {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	r := gin.Default()
 	// 全局中间件
 	middler.InitMiddleware(r)
@@ -31,10 +34,6 @@ func setupRouter() *gin.Engine {
 
 func RunServer() {
 	r := setupRouter()
-
-	if !config.Conf.Server.Debug {
-		gin.SetMode(gin.ReleaseMode)
-	}
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", config.GetConf(config.Conf.Server.Port, constants.ENV_SERVER_PORT)),
 		Handler: r,
