@@ -35,7 +35,6 @@ TvTask为追更任务，支持通过管理页面添加追剧任务，支持手�
 ### 本地运行
 - 修改`config/config.yaml`内容，配置管理后台账号密码、数据库链接信息、迅雷地址
 - 执行`go run main.go`
-- `pkg/cron/cron.go`中配置定时任务
 
 ### docker
 - 目前已经提供了`Dockfile`,了解Docker的可以自行部署
@@ -81,8 +80,13 @@ services:
       THUNDER_PORT: '<迅雷端口号>'
       ADMIN_USERNAME: '<后台账号>'
       ADMIN_PASSWORD: '<后台密码>'
+      CRON_TV_TASK_ENABLED: true
+      CRON_TV_TASK_SPEC: "0 */2 * * *"
     ports:
       - "<映射宿主机端口号>:<服务器端口号>"
+    volumes:
+      - ./logs:/home/work/logs
+      - ./supervisor_logs:/home/work/supervisor/logs
     networks:
       nas-spider-network:
         aliases:
@@ -101,6 +105,18 @@ services:
 <img src="https://github.com/Levi-xia/nasspider/blob/main/img/three.jpg" style="width: 50%">
 
 ## 其他
+### 定时任务配置
+修改`docker-compose.yaml`文件
+
+- `CRON_TV_TASK_ENABLED`设置是否开启定时追更
+- `CRON_TV_TASK_SPEC`参数，设置定时参数，设置方式请自行查阅cron表达式
+```txt
+0 */2 * * * 每两小时执行一次
+0 0 0 * * 每天零点执行一次
+0 0 0 1 * 每月1号零点执行一次
+0 9-17 * * *  每天9点到17点执行一次
+```
+
 ### 迅雷配置下载文件夹
 TvTask中的`download_path`可以设置为默认的`/downloads/[目标文件夹/]`(目标文件夹可以自动新建),
 
