@@ -1,6 +1,6 @@
 server:
   port: 8088
-  debug: true
+  debug: false
 
 cron:
   tv_task:
