@@ -1,9 +1,10 @@
 package cron
 
 import (
-	"log"
-
 	"github.com/robfig/cron/v3"
+	"nasspider/config"
+	"nasspider/pkg/constants"
+	"nasspider/pkg/logger"
 )
 
 type crontab struct {
@@ -12,23 +13,28 @@ type crontab struct {
 	enable bool
 }
 
-// 在这里加cron任务
-var cronTabs = []crontab{
-	// 每2小时整点执行一次
-	{spec: "0 */2 * * *", cmd: CronCommitExecuteTvTask, enable: true},
+func getCronTasks() []crontab {
+	return []crontab{
+		{
+			enable: config.GetConf(config.Conf.Cron.TvTask.Enabled, constants.ENV_CRON_TV_TASK_ENABLED),
+			spec:   config.GetConf(config.Conf.Cron.TvTask.Spec, constants.ENV_CRON_TV_TASK_SPEC),
+			cmd:    CronCommitExecuteTvTask,
+		},
+	}
 }
 
 func InitCron() {
 	c := cron.New()
+	cronTabs := getCronTasks()
 	for _, tab := range cronTabs {
 		if !tab.enable {
 			continue
 		}
 		entryId, err := c.AddFunc(tab.spec, tab.cmd)
 		if err != nil {
-			log.Fatalf("add cron func err: %v", err)
+			logger.Logger.Fatalf("add cron func err: %v", err)
 		}
-		log.Printf("add cron func success entryId: %d", entryId)
+		logger.Logger.Infof("add cron func success entryId: %d", entryId)
 	}
 	c.Start()
 }

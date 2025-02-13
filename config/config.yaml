@@ -2,6 +2,11 @@ server:
   port: 8088
   debug: true
 
+cron:
+  tv_task:
+    enabled: true
+    spec: "0 */2 * * *"
+
 passport:
   username: "admin"
   password: "123456"

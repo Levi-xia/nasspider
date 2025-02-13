@@ -33,7 +33,7 @@ func CronCommitExecuteTvTask() {
 			Page:     page,
 			PageSize: pageSize,
 			StatusList: []int{
-				int(constants.Waiting),
+				int(constants.Waiting), int(constants.Error),
 			},
 		})
 		if err != nil {

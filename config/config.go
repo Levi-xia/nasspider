@@ -18,6 +18,7 @@ type Config struct {
 
 type configuration struct {
 	Server     ServerConfig `mapstructure:"server" json:"server" yaml:"server"`
+	Cron       CronConfig   `mapstructure:"cron" json:"cron" yaml:"cron"`
 	Downloader Downloader   `mapstructure:"downloader" json:"downloader" yaml:"downloader"`
 	Logger     LoggerConfig `mapstructure:"logger" json:"logger" yaml:"logger"`
 	DB         MySqlConfig  `mapstructure:"mysql" json:"mysql" yaml:"mysql"`
@@ -28,6 +29,15 @@ type configuration struct {
 type ServerConfig struct {
 	Port  int  `mapstructure:"port" json:"port" yaml:"port"`
 	Debug bool `mapstructure:"debug" json:"debug" yaml:"debug"`
+}
+
+type CronConfig struct {
+	TvTask Cron `mapstructure:"tv_task" json:"tv_task" yaml:"tv_task"`
+}
+
+type Cron struct {
+	Enabled bool   `mapstructure:"enabled" json:"enabled" yaml:"enabled"`
+	Spec    string `mapstructure:"spec" json:"spec" yaml:"spec"`
 }
 
 type JwtConfig struct {

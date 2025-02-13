@@ -38,6 +38,8 @@ services:
       THUNDER_PORT: '2345'
       ADMIN_USERNAME: 'admin'
       ADMIN_PASSWORD: '123456'
+      CRON_TV_TASK_ENABLED: true
+      CRON_TV_TASK_SPEC: "0 */2 * * *"
     ports:
       - "8089:8089"
     networks:
