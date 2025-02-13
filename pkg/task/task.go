@@ -13,9 +13,9 @@ import (
 
 func DoTask(tvTask bo.TVTask, isCron bool) error {
 	logger.Logger.Infof("开始执行任务:%v", tvTask.Name)
-
-	if isCron && tvTask.Status != int(constants.Waiting) {
-		logger.Logger.Infof("任务状态不是等待中, 跳过，等待下次执行")
+	
+	if isCron && !utils.IntInSlice([]int{int(constants.Waiting), int(constants.Error)}, tvTask.Status)  {
+		logger.Logger.Infof("任务状态不是等待或错误, 跳过，等待下次执行")
 		return nil
 	}
 	if tvTask.Status == int(constants.Doing) {
