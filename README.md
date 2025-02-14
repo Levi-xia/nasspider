@@ -84,9 +84,6 @@ services:
       CRON_TV_TASK_SPEC: "0 */2 * * *"
     ports:
       - "<映射宿主机端口号>:<服务器端口号>"
-    volumes:
-      - ./logs:/home/work/logs
-      - ./supervisor_logs:/home/work/supervisor/logs
     networks:
       nas-spider-network:
         aliases:
