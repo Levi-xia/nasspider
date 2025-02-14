@@ -46,10 +46,16 @@ type JwtConfig struct {
 }
 
 type Downloader struct {
-	Thunder Thunder `mapstructure:"thunder" json:"thunder" yaml:"thunder"`
+	Thunder     Thunder     `mapstructure:"thunder" json:"thunder" yaml:"thunder"`
+	QBittorrent QBittorrent `mapstructure:"qbittorrent" json:"qbittorrent" yaml:"qbittorrent"`
 }
 
 type Thunder struct {
+	Host string `mapstructure:"host" json:"host" yaml:"host"`
+	Port int    `mapstructure:"port" json:"port" yaml:"port"`
+}
+
+type QBittorrent struct {
 	Host string `mapstructure:"host" json:"host" yaml:"host"`
 	Port int    `mapstructure:"port" json:"port" yaml:"port"`
 }
