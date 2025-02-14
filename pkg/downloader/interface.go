@@ -16,6 +16,7 @@ type Downloader interface {
 
 var DownloaderMap = map[constants.DownloaderName]Downloader{
 	constants.DownloaderThunder: NewThunderDownloader(),
+	constants.DownloaderQBittorrent: NewQBittorrentDownloader(),
 }
 
 func CommitDownloadTask(d Downloader, task Task) error {

@@ -18,6 +18,8 @@ downloader:
   qbittorrent:
     host: "http://192.168.0.111"
     port: 8080
+    username: "admin"
+    password: "123456"
 
 jwt:
   secret: 4Bde3BGEbYqtqyEUzW4ry8jKFcaPH17fRmTmqE7MDr05Lwj95uruRKrrkb44TJ3s
