@@ -5,6 +5,7 @@ import (
 	"nasspider/pkg/bo"
 	"nasspider/pkg/common"
 	"nasspider/pkg/constants"
+	"nasspider/pkg/cron"
 	"nasspider/pkg/dto"
 	"nasspider/pkg/logger"
 	"nasspider/pkg/service"
@@ -187,10 +188,6 @@ func TriggerTask(c *gin.Context) {
 
 func TriggerAllTask(c *gin.Context) {
 	resp := &common.Result{}
-	if err := c.ShouldBind(req); err != nil {
-		c.JSON(http.StatusOK, resp.Error(common.ParamError, common.GetErrorMsg(req, err)))
-		return
-	}
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
