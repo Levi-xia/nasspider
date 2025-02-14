@@ -30,5 +30,7 @@ func SetRoutes(r *gin.Engine) {
 		apiGroup.POST("/task/add", middler.NeedLoginHandler(), app.AddTask)
 		apiGroup.POST("/task/edit", middler.NeedLoginHandler(), app.EditTask)
 		apiGroup.POST("/task/trigger", middler.NeedLoginHandler(), app.TriggerTask)
+		apiGroup.POST("/task/triggerAll", middler.NeedLoginHandler(), app.TriggerAllTask)
+		apiGroup.POST("/download/add", middler.NeedLoginHandler(), app.AddDownload)
 	}
 }

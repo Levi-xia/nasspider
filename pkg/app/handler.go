@@ -57,9 +57,9 @@ func GetTaskList(c *gin.Context) {
 			TotalEp:      tvTask.TotalEp,
 			CurrentEp:    tvTask.CurrentEp,
 			Status:       tvTask.Status,
-			CreatedAt:   tvTask.CreatedAt,
-			UpdatedAt:   tvTask.UpdatedAt,
-			StatusDesc:  constants.TaskStatusMap[constants.TaskStatus(tvTask.Status)],
+			CreatedAt:    tvTask.CreatedAt,
+			UpdatedAt:    tvTask.UpdatedAt,
+			StatusDesc:   constants.TaskStatusMap[constants.TaskStatus(tvTask.Status)],
 		})
 	}
 	c.JSON(http.StatusOK, resp.Success(&dto.GetTaskListResponse{
@@ -183,4 +183,25 @@ func TriggerTask(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Success(&dto.TriggerTaskResponse{
 		ID: tvTask.ID,
 	}))
+}
+
+func TriggerAllTask(c *gin.Context) {
+	resp := &common.Result{}
+	if err := c.ShouldBind(req); err != nil {
+		c.JSON(http.StatusOK, resp.Error(common.ParamError, common.GetErrorMsg(req, err)))
+		return
+	}
+	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				logger.Logger.Errorf("任务失败:%v", err)
+			}
+		}()
+		cron.CronCommitExecuteTvTask()
+	}()
+	c.JSON(http.StatusOK, resp.Success(nil))
+}
+
+func AddDownload(c *gin.Context) {
+
 }

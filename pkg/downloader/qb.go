@@ -41,6 +41,9 @@ func (q *QBittorrentDownloader) doTask(URL string, path string) error {
 		fmt.Sprintf("%s:%d/api/v2/torrents/add", host, port),
 		http.MethodPost,
 		payload,
+		utils.WithHeaders(map[string]string{
+			"Content-Type": "multipart/form-data",
+		}),
 	)
 	if err != nil {
 		return err
