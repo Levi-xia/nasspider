@@ -101,6 +101,16 @@ services:
 
 <img src="https://github.com/Levi-xia/nasspider/blob/main/img/three.jpg" style="width: 50%">
 
+## 问题排查
+
+### 启动后8089端口无法访问
+- 登陆到nas-spider-web容器内
+- `cd /home/work/supervisor/logs`,执行`cat nas-spider.err.log`输出内容
+
+### 追更状态已出错
+- 登陆到nas-spider-web容器内
+- `cd /home/work/logs`,查看`cat err.log*`输出内容
+
 ## 其他
 ### 定时任务配置
 修改`docker-compose.yaml`文件
