@@ -55,12 +55,20 @@ func (d DoMP4Provider) ParseURLs(URL string, currentEp int) ([]string, int, erro
 	re := regexp.MustCompile(`更新至(?:全)?(\d+)集`)
 	matches := re.FindStringSubmatch(titleText)
 	if len(matches) == 0 {
-		return nil, 0, fmt.Errorf("异常:解析集数失败")
+		// 再尝试解析(?:全)?(\d+)集
+		re = regexp.MustCompile(`(?:全)?(\d+)集`)
+		matches = re.FindStringSubmatch(titleText)
+		if len(matches) == 0 {
+			return nil, 0, fmt.Errorf("异常:解析集数失败")
+		}
 	}
 	updatedEp, _ := strconv.Atoi(matches[1])
 	// 解析集数小于当前记录集数
 	if updatedEp < currentEp {
 		return nil, 0, fmt.Errorf("异常：解析集数(%d) < 当前集数(%d)", updatedEp, currentEp)
+	}
+	if len(inputValues) != updatedEp {
+		return nil, 0, fmt.Errorf("异常：解析集数(%d) != 下载链接数(%d)", updatedEp, len(inputValues))
 	}
 	// 解析集数等于当前记录集数
 	if updatedEp == currentEp {
