@@ -26,14 +26,14 @@
                 <thead class="fw-bold">
                     <tr>
                         <th class="text-nowrap align-middle" scope="col">ID</th>
-                        <th class="text-nowrap align-middle" scope="col">URL</th>
                         <th class="text-nowrap align-middle" scope="col">名称</th>
+                        <th class="text-nowrap align-middle" scope="col">URL</th>
                         <th class="text-nowrap align-middle" scope="col">下载路径</th>
+                        <th class="text-nowrap align-middle" scope="col">总集数</th>
+                        <th class="text-nowrap align-middle" scope="col">当前集数</th>
                         <th class="text-nowrap align-middle" scope="col">类型</th>
                         <th class="text-nowrap align-middle" scope="col">来源</th>
                         <th class="text-nowrap align-middle" scope="col">下载器</th>
-                        <th class="text-nowrap align-middle" scope="col">总集数</th>
-                        <th class="text-nowrap align-middle" scope="col">当前集数</th>
                         <th class="text-nowrap align-middle" scope="col">状态</th>
                         <!-- <th class="text-nowrap align-middle" scope="col">创建时间</th> -->
                         <th class="text-nowrap align-middle" scope="col">更新时间</th>
@@ -43,14 +43,14 @@
                 <tbody>
                     <tr v-for="item in tasks" :key="item.id">
                         <td class="text-nowrap align-middle">[[ item.id ]]</td>
-                        <td class="text-nowrap align-middle">[[ item.url ]]</td>
                         <td class="text-nowrap align-middle">[[ item.name ]]</td>
+                        <td class="text-nowrap align-middle">[[ item.url ]]</td>
                         <td class="text-nowrap align-middle">[[ item.download_path ]]</td>
+                        <td class="text-nowrap align-middle">[[ item.total_ep ]]</td>
+                        <td class="text-nowrap align-middle">[[ item.current_ep ]]</td>
                         <td class="text-nowrap align-middle">[[ item.type ]]</td>
                         <td class="text-nowrap align-middle">[[ item.provider ]]</td>
                         <td class="text-nowrap align-middle">[[ item.downloader ]]</td>
-                        <td class="text-nowrap align-middle">[[ item.total_ep ]]</td>
-                        <td class="text-nowrap align-middle">[[ item.current_ep ]]</td>
                         <td class="text-nowrap align-middle">
                             <span class="badge" :class="{
                                 'bg-primary': item.status === 0,
