@@ -76,3 +76,7 @@ func (d DoMP4Provider) ParseURLs(URL string, currentEp int) ([]string, int, erro
 	}
 	return inputValues[:updatedEp-currentEp], updatedEp, nil
 }
+
+func (d DoMP4Provider) Search(content string) ([]SearchSet, error) {
+	return []SearchSet{}, nil
+}

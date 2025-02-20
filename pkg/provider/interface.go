@@ -2,29 +2,32 @@ package provider
 
 import (
 	"nasspider/pkg/constants"
-	"nasspider/utils"
-	"net/http"
 )
 
-type Provider interface {
-	ParseURLs(URL string, CurrentEp int) ([]string, int, error)
-}
-
 var ProviderMap = map[constants.ProviderName]Provider{
-	constants.DownloaderDoMP4: &DoMP4Provider{},
+	constants.ProviderDoMP4: &DoMP4Provider{},
 }
 
-func getHtml(url string) (string, error) {
-	resp, err := utils.HttpDo(
-		url,
-		string(http.MethodGet),
-		nil,
-		utils.WithHeaders(map[string]string{
-			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3776.0 Safari/537.36",
-		}),
-	)
-	if err != nil {
-		return "", err
-	}
-	return string(resp), nil
+var SearchProviderMap = map[constants.ProviderName]Provider{
+	constants.ProviderDoMP4: &DoMP4Provider{},
+}
+
+type Provider interface {
+	ParseURLs(URL string, currentEp int) ([]string, int, error)
+	Search(content string) ([]SearchSet, error)
+}
+
+type SearchResult struct {
+	Provider   string      `json:"provider"`
+	SearchSets []SearchSet `json:"search_sets"`
+	Cost       int64       `json:"cost"`
+}
+
+type SearchSet struct {
+	URL       string   `json:"url"`
+	Title     string   `json:"title"`
+	UpdatedEp int      `json:"current_ep"`
+	TotalEp   int      `json:"total_ep"`
+	Resources []string `json:"resources"`
+	CanChased bool     `json:"can_chased"` // 是否可以追更
 }

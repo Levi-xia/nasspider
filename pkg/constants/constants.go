@@ -43,5 +43,8 @@ var (
 
 var (
 	DownloaderThunder DownloaderName = "thunder"
-	DownloaderDoMP4   ProviderName   = "domp4"
+)
+
+var (
+	ProviderDoMP4 ProviderName = "domp4"
 )
