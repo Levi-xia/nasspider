@@ -17,13 +17,14 @@ type Config struct {
 }
 
 type configuration struct {
-	Server     ServerConfig `mapstructure:"server" json:"server" yaml:"server"`
-	Cron       CronConfig   `mapstructure:"cron" json:"cron" yaml:"cron"`
-	Downloader Downloader   `mapstructure:"downloader" json:"downloader" yaml:"downloader"`
-	Logger     LoggerConfig `mapstructure:"logger" json:"logger" yaml:"logger"`
-	DB         MySqlConfig  `mapstructure:"mysql" json:"mysql" yaml:"mysql"`
-	Jwt        JwtConfig    `mapstructure:"jwt" json:"jwt" yaml:"jwt"`
-	Passport   Passport     `mapstructure:"passport" json:"passport" yaml:"passport"`
+	Server       ServerConfig `mapstructure:"server" json:"server" yaml:"server"`
+	Cron         CronConfig   `mapstructure:"cron" json:"cron" yaml:"cron"`
+	Downloader   Downloader   `mapstructure:"downloader" json:"downloader" yaml:"downloader"`
+	Logger       LoggerConfig `mapstructure:"logger" json:"logger" yaml:"logger"`
+	DB           MySqlConfig  `mapstructure:"mysql" json:"mysql" yaml:"mysql"`
+	Jwt          JwtConfig    `mapstructure:"jwt" json:"jwt" yaml:"jwt"`
+	Passport     Passport     `mapstructure:"passport" json:"passport" yaml:"passport"`
+	Notification Notification `mapstructure:"notification" json:"notification" yaml:"notification"`
 }
 
 type ServerConfig struct {
@@ -82,6 +83,15 @@ type MySqlConfig struct {
 type Passport struct {
 	Username string `mapstructure:"username" json:"username" yaml:"username"`
 	Password string `mapstructure:"password" json:"password" yaml:"password"`
+}
+
+type Notification struct {
+	Bark Bark `mapstructure:"bark" json:"bark" yaml:"bark"`
+}
+
+type Bark struct {
+	Host string `mapstructure:"host" json:"host" yaml:"host"`
+	Key  string `mapstructure:"ket" json:"ket" yaml:"ket"`
 }
 
 func InitConfig() *Config {

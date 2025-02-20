@@ -42,3 +42,8 @@ mysql:
   log_mode: info # 日志级别
   enable_file_log_writer: true # 是否启用日志文件
   log_filename: sql.log # 日志文件名称
+
+notification:
+  bark:
+    host: "https://api.day.app"
+    key: "your key"

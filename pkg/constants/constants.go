@@ -5,6 +5,7 @@ type TaskStatus int
 type DownloaderName string
 type ProviderName string
 type ENVConfig string
+type NotifierName string
 
 var (
 	Torrent DownloaderType = "torrent"
@@ -39,9 +40,15 @@ var (
 	ENV_ADMIN_PASSWORD       ENVConfig = "ADMIN_PASSWORD"
 	ENV_CRON_TV_TASK_ENABLED ENVConfig = "CRON_TV_TASK_ENABLED"
 	ENV_CRON_TV_TASK_SPEC    ENVConfig = "CRON_TV_TASK_SPEC"
+	ENV_NOTIFY_BARK_HOST     ENVConfig = "NOTIFY_BARK_HOST"
+	ENV_NOTIFY_BARK_KEY      ENVConfig = "NOTIFY_BARK_KEY"
 )
 
 var (
 	DownloaderThunder DownloaderName = "thunder"
 	DownloaderDoMP4   ProviderName   = "domp4"
+)
+
+var (
+	NotifierIosBark NotifierName = "bark"
 )
