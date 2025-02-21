@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"fmt"
 	"nasspider/config"
 	"os"
 	"path/filepath"
@@ -27,12 +26,11 @@ func InitLog() (err error) {
 	loggerCnf := config.Conf.Logger
 	workDir, _ := os.Getwd()
 	// 初始化日志
-	subfix := time.Now().Format("2006010215")
 	cfg := &LogConfig{
-		DebugFileName: filepath.Join(workDir, fmt.Sprintf("%s.%s", loggerCnf.DebugFileName, subfix)),
-		InfoFileName:  filepath.Join(workDir, fmt.Sprintf("%s.%s", loggerCnf.InfoFileName, subfix)),
-		WarnFileName:  filepath.Join(workDir, fmt.Sprintf("%s.%s", loggerCnf.WarnFileName, subfix)),
-		ErrorFileName: filepath.Join(workDir, fmt.Sprintf("%s.%s", loggerCnf.ErrorFileName, subfix)),
+		DebugFileName: filepath.Join(workDir, loggerCnf.DebugFileName),
+		InfoFileName:  filepath.Join(workDir, loggerCnf.InfoFileName),
+		WarnFileName:  filepath.Join(workDir, loggerCnf.WarnFileName),
+		ErrorFileName: filepath.Join(workDir, loggerCnf.ErrorFileName),
 		MaxSize:       loggerCnf.MaxSize,
 		MaxAge:        loggerCnf.MaxAge,
 		MaxBackups:    loggerCnf.MaxBackups,

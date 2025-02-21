@@ -25,9 +25,9 @@ logger:
   infoFileName: "logs/info.log"
   warnFileName: "logs/warn.log"
   errorFileName: "logs/error.log"
-  maxSize: 500
-  maxAge: 28
-  maxBackups: 3
+  maxSize: 5
+  maxAge: 7
+  maxBackups: 10
 
 mysql:
   driver: mysql # 数据库驱动
