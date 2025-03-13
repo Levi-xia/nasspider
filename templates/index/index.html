@@ -15,6 +15,7 @@
     <!-- 新增任务按钮 -->
     <div class="container-fluid px-0 mb-3">
         <div class="d-flex justify-content-end">
+            <button type="button" class="btn btn-success" @click="showDownloadTaskModal()">添加下载</button>
             <button type="button" class="btn btn-primary" @click="showTaskModal()">新增任务</button>
         </div>
     </div>
@@ -169,6 +170,51 @@
             </div>
         </div>
     </div>
+
+    <!-- 直接添加下载任务 -->
+    <div class="modal fade" id="downloadTaskModel" tabindex="-1" ref="downloadTaskModel">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新增任务</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="handleSubmitDownloadTask">
+                        <div class="mb-3">
+                            <label for="url" class="form-label">URL</label>
+                            <input type="textarea" class="form-control" id="url" v-model="currentDownloadTask.url" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="download_path" class="form-label">下载路径</label>
+                            <input type="text" class="form-control" id="download_path"
+                                v-model="currentTask.download_path" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="type" class="form-label">类型</label>
+                            <select class="form-select" id="type" v-model="currentDownloadTask.type" required>
+                                <option v-for="type in typeList" :key="type.value" :value="type.value">
+                                    [[ type.label ]]
+                                </option>
+                           </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="downloader" class="form-label">下载器</label>
+                            <select class="form-select" id="downloader" v-model="currentDownloadTask.downloader" required>
+                                <option v-for="downloader in downloaderList" :key="downloader.value" :value="downloader.value">
+                                    [[ downloader.label ]]
+                                </option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" @click="handleSubmitDownloadTask">确认</button>
+                </div>
+            </div>
+        </div>          
+    </div>
 </div>
 
 <script>
@@ -213,9 +259,16 @@
                 downloaderList: [
                     { value: 'thunder', label: '迅雷' },
                 ],
+                downloadTaskModel: null,
+                currentDownloadTask: {
+                    url: '',
+                    downloader: '',
+                    download_path: '',
+                },
             },
             mounted() {
                 this.taskModal = new bootstrap.Modal(this.$refs.taskModal);
+                this.downloadTaskModel = new bootstrap.Modal(this.$refs.downloadTaskModel);
                 this.loadTasks();
             },
             methods: {
@@ -325,7 +378,19 @@
                         this.currentPage = page;
                         this.loadTasks();
                     }
-                }
+                },
+                showDownloadTaskModal(task) {
+                    this.currentDownloadTask = {
+                        url: "",
+                        downloader: "",
+                        download_path: "",
+                    }
+                    this.downloadTaskModel.show();
+                },
+                handleSubmitDownloadTask() {
+                    console.log(this.currentDownloadTask)
+                    this.taskModal.hide();
+                },
             }
         });
     }

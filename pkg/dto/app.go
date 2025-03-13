@@ -8,8 +8,8 @@ type GetTaskListRequest struct {
 }
 
 type GetTaskListResponse struct {
-	List           []TVTask `json:"list"`
-	Total          int64    `json:"total"`
+	List  []TVTask `json:"list"`
+	Total int64    `json:"total"`
 }
 
 type Option struct {
@@ -126,4 +126,14 @@ func (LoginRequest) GetMessages() common.ValidatorMessages {
 type LoginResponse struct {
 	Token     string `json:"token"`
 	ExpiresAt int    `json:"expires_at"`
+}
+
+type AddDownloadTaskRequest struct {
+	URLs         string `json:"urls" form:"urls" binding:"required"`
+	DownloadPath string `json:"download_path" form:"download_path" binding:"required"`
+	Type         string `json:"type" form:"type" binding:"required"`
+	Downloader   string `json:"downloader" form:"downloader" binding:"required"`
+}
+
+type AddDownloadTaskResponse struct {
 }

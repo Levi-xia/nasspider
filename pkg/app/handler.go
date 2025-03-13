@@ -5,11 +5,14 @@ import (
 	"nasspider/pkg/bo"
 	"nasspider/pkg/common"
 	"nasspider/pkg/constants"
+	"nasspider/pkg/downloader"
 	"nasspider/pkg/dto"
 	"nasspider/pkg/logger"
 	"nasspider/pkg/service"
 	"nasspider/pkg/task"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -183,4 +186,39 @@ func TriggerTask(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Success(&dto.TriggerTaskResponse{
 		ID: tvTask.ID,
 	}))
+}
+
+// AddDownloadTask 添加下载任务
+func AddDownloadTask(c *gin.Context) {
+	resp := &common.Result{}
+	req := &dto.AddDownloadTaskRequest{}
+	if err := c.ShouldBind(req); err != nil {
+		c.JSON(http.StatusOK, resp.Error(common.ParamError, common.GetErrorMsg(req, err)))
+		return
+	}
+	// URLs按照换行切分成string数组
+	URLs := strings.Split(req.URLs, "\n")
+	if len(URLs) == 0 {
+		c.JSON(http.StatusOK, resp.Error(common.ParamError, "URLs不能为空"))
+		return
+	}
+	d := downloader.DownloaderMap[constants.DownloaderName(req.Downloader)]
+	if d == nil {
+		c.JSON(http.StatusOK, resp.Error(common.BusinessError, "下载器不存在"))
+		return
+	}
+	go func() {
+		for index, URL := range URLs {
+			if err := downloader.CommitDownloadTask(d, downloader.Task{
+				URL:  URL,
+				Type: constants.DownloaderType(req.Type),
+				Path: req.DownloadPath,
+			}); err != nil {
+				logger.Logger.Errorf("任务%d发送失败:%v", index, err)
+			}
+			logger.Logger.Infof("任务%d发送成功", index)
+			time.Sleep(time.Second * 1)
+		}
+	}()
+	c.JSON(http.StatusOK, resp.Success(&dto.AddDownloadTaskResponse{}))
 }
