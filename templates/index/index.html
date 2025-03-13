@@ -389,7 +389,26 @@
                 },
                 handleSubmitDownloadTask() {
                     console.log(this.currentDownloadTask)
-                    this.taskModal.hide();
+                    fetch("/api/task/download/add", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(this.currentDownloadTask)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.code === 0) {
+                                alert('添加下载任务成功');
+                                this.downloadTaskModel.hide();
+                            } else {
+                                alert('添加下载任务失败：' + (data.msg || '未知错误'));
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('添加下载任务失败：' + error.message);
+                        });
                 },
             }
         });
