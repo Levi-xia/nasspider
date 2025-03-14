@@ -60,9 +60,9 @@ func GetTaskList(c *gin.Context) {
 			TotalEp:      tvTask.TotalEp,
 			CurrentEp:    tvTask.CurrentEp,
 			Status:       tvTask.Status,
-			CreatedAt:   tvTask.CreatedAt,
-			UpdatedAt:   tvTask.UpdatedAt,
-			StatusDesc:  constants.TaskStatusMap[constants.TaskStatus(tvTask.Status)],
+			CreatedAt:    tvTask.CreatedAt,
+			UpdatedAt:    tvTask.UpdatedAt,
+			StatusDesc:   constants.TaskStatusMap[constants.TaskStatus(tvTask.Status)],
 		})
 	}
 	c.JSON(http.StatusOK, resp.Success(&dto.GetTaskListResponse{
@@ -208,6 +208,11 @@ func AddDownloadTask(c *gin.Context) {
 		return
 	}
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				logger.Logger.Errorf("下载任务失败:%v", r)
+			}
+		}()
 		for index, URL := range URLs {
 			if err := downloader.CommitDownloadTask(d, downloader.Task{
 				URL:  URL,

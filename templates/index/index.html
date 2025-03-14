@@ -262,6 +262,7 @@
                 downloadTaskModel: null,
                 currentDownloadTask: {
                     url: '',
+                    type: '',
                     downloader: '',
                     download_path: '',
                 },
@@ -382,8 +383,9 @@
                 showDownloadTaskModal(task) {
                     this.currentDownloadTask = {
                         url: "",
-                        downloader: "",
                         download_path: "",
+                        type: this.typeList[0].value,  // 默认选中第一个选项
+                        downloader: this.downloaderList[0].value, // 默认选中第一个选项
                     }
                     this.downloadTaskModel.show();
                 },
