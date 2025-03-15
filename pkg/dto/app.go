@@ -129,10 +129,19 @@ type LoginResponse struct {
 }
 
 type AddDownloadTaskRequest struct {
-	URLs         string `json:"urls" form:"urls" binding:"required"`
+	URL         string `json:"url" form:"url" binding:"required"`
 	DownloadPath string `json:"download_path" form:"download_path" binding:"required"`
 	Type         string `json:"type" form:"type" binding:"required"`
 	Downloader   string `json:"downloader" form:"downloader" binding:"required"`
+}
+
+func (AddDownloadTaskRequest) GetMessages() common.ValidatorMessages {
+	return common.ValidatorMessages{
+		"url.required": "url不能为空",
+		"download_path.required": "下载路径不能为空",
+		"type.required": "类型不能为空",
+		"downloader.required": "下载器不能为空",
+	}
 }
 
 type AddDownloadTaskResponse struct {

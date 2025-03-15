@@ -13,7 +13,7 @@ passport:
 
 downloader:
   thunder:
-    host: "http://192.168.0.111"
+    host: "http://192.168.0.105"
     port: 2345 
 
 jwt:

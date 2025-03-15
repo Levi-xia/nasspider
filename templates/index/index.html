@@ -15,7 +15,7 @@
     <!-- 新增任务按钮 -->
     <div class="container-fluid px-0 mb-3">
         <div class="d-flex justify-content-end">
-            <button type="button" class="btn btn-success" @click="showDownloadTaskModal()">添加下载</button>
+            <button type="button" class="btn btn-success" style="margin-right: 5px;" @click="showDownloadTaskModal()">添加下载</button>
             <button type="button" class="btn btn-primary" @click="showTaskModal()">新增任务</button>
         </div>
     </div>
@@ -183,12 +183,13 @@
                     <form @submit.prevent="handleSubmitDownloadTask">
                         <div class="mb-3">
                             <label for="url" class="form-label">URL</label>
-                            <input type="textarea" class="form-control" id="url" v-model="currentDownloadTask.url" required>
+                            <textarea type="text" class="form-control" id="url" v-model="currentDownloadTask.url" required>
+                            </textarea>
                         </div>
                         <div class="mb-3">
                             <label for="download_path" class="form-label">下载路径</label>
                             <input type="text" class="form-control" id="download_path"
-                                v-model="currentTask.download_path" required>
+                                v-model="currentDownloadTask.download_path" required>
                         </div>
                         <div class="mb-3">
                             <label for="type" class="form-label">类型</label>

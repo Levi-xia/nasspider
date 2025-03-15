@@ -197,7 +197,7 @@ func AddDownloadTask(c *gin.Context) {
 		return
 	}
 	// URLs按照换行切分成string数组
-	URLs := strings.Split(req.URLs, "\n")
+	URLs := strings.Split(req.URL, "\n")
 	if len(URLs) == 0 {
 		c.JSON(http.StatusOK, resp.Error(common.ParamError, "URLs不能为空"))
 		return
