@@ -1,5 +1,7 @@
 # Nas追剧神器
 
+（已经实现的迅雷下载器已受限，nas版迅雷非会员只支持每天3个；已经实现的domp4 Provider以无法访问，需自行实现）
+
 ## 简介
 此项目为[Nas追剧神器](https://github.com/Levi-xia/nasspider)，提供图形化管理界面，旨在能够实现自动追更功能，能够实现根据任务配置，自动解析provider的下载数据，调用downloader进行下载
 
